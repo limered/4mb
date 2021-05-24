@@ -1,0 +1,10 @@
+[package]
+name = "four_mb"
+version = "0.1.0"
+authors = ["Emil Wasilewski <emil.wasilewski@brickmakers.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.3"
