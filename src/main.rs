@@ -1,9 +1,19 @@
 use ggez::{graphics, Context, ContextBuilder, GameResult};
+use ggez::conf::{WindowSetup, NumSamples};
 use ggez::event::{self, EventHandler};
 
 fn main() {
+    let window_setup = WindowSetup {
+        title: "Timmy Hunting".to_owned(),
+        samples: NumSamples::Zero,
+        vsync: true,
+        icon: "".to_owned(),
+        srgb: true,
+    };
+
     // Make a Context.
     let (mut ctx, mut event_loop) = ContextBuilder::new("timmy_hunting", "Emil Wasilewski")
+        .window_setup(window_setup)
 		.build()
 		.expect("aieee, could not create ggez context!");
 
@@ -39,7 +49,7 @@ impl EventHandler for MyGame {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-		graphics::clear(ctx, graphics::WHITE);
+		graphics::clear(ctx, graphics::BLACK);
         // Draw code here...
 		graphics::present(ctx)
     }
