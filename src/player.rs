@@ -43,6 +43,13 @@ impl Player {
         self.position = Point2::new(self.physics.position.x, self.physics.position.y);
     }
 
+    pub fn render(&mut self, ctx: &mut Context) -> GameResult<()>{
+        graphics::draw(
+            ctx,
+            &self.triangle_mesh,
+            (self.position, self.rotation, graphics::WHITE),
+        )
+    }
     fn rotate_self(&mut self, dt: f32, ctx: &Context) {
         let mut r = na::Rotation2::new(0.0);
         if keyboard::is_key_pressed(ctx, KeyCode::D) {

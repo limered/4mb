@@ -2,8 +2,8 @@ use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
-mod player;
 mod physic;
+mod player;
 
 fn main() {
     let window_setup = WindowSetup {
@@ -42,18 +42,16 @@ impl MyGame {
 impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let dt = ggez::timer::delta(ctx).as_secs_f32();
+
         self.player.update(dt, &ctx);
+
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, graphics::BLACK);
 
-        graphics::draw(
-            ctx,
-            &self.player.triangle_mesh,
-            (self.player.position, self.player.rotation, graphics::WHITE),
-        )?;
+        self.player.render(ctx)?;
 
         graphics::present(ctx)
     }
