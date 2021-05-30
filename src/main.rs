@@ -1,20 +1,22 @@
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
+use ggez::nalgebra::Vector2;
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
+mod destroyable;
 mod physic;
 mod player;
 
 fn main() {
     let window_setup = WindowSetup {
-        title: "Timmy Hunting".to_owned(),
+        title: "Trashinator".to_owned(),
         samples: NumSamples::Zero,
         vsync: true,
         icon: "".to_owned(),
         srgb: true,
     };
 
-    let (mut ctx, mut event_loop) = ContextBuilder::new("timmy_hunting", "Emil Wasilewski")
+    let (mut ctx, mut event_loop) = ContextBuilder::new("trashinator", "Emil Wasilewski")
         .window_setup(window_setup)
         .build()
         .expect("aieee, could not create ggez context!");
