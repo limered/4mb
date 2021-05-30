@@ -31,12 +31,14 @@ fn main() {
 
 struct MyGame {
     pub player: player::Player,
+    pub element: destroyable::Destroyable,
 }
 
 impl MyGame {
     pub fn new(ctx: &mut Context) -> MyGame {
         MyGame {
             player: player::Player::new(ctx),
+            element: destroyable::Destroyable::new(Vector2::new(600.0, 200.0), ctx),
         }
     }
 }
@@ -54,6 +56,7 @@ impl EventHandler for MyGame {
         graphics::clear(ctx, graphics::BLACK);
 
         self.player.render(ctx)?;
+        self.element.render(ctx)?;
 
         graphics::present(ctx)
     }

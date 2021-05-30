@@ -1,15 +1,20 @@
-use ggez::nalgebra::Vector2;
+use ggez::nalgebra::{Point2, Vector2};
 
-pub struct Physics {
+pub struct Body {
     pub position: Vector2<f32>,
     pub acceleration: Vector2<f32>,
     pub drag: f32,
     velocity: Vector2<f32>,
 }
 
-impl Physics {
+pub struct Transform {
+    pub position: Point2<f32>,
+    pub rotation: f32,
+}
+
+impl Body {
     pub fn new(position: Vector2<f32>, drag: f32) -> Self {
-        Physics {
+        Body {
             position: position,
             drag: drag,
             acceleration: Vector2::new(0.0, 0.0),
@@ -24,7 +29,15 @@ impl Physics {
     }
 
     pub fn stop(&mut self) {
-        self.acceleration = Vector2::new(0.0, 0.0);
         self.velocity = Vector2::new(0.0, 0.0);
+    }
+}
+
+impl Transform {
+    pub fn new(position: Point2<f32>, rotation: f32) -> Self {
+        Transform {
+            position: position,
+            rotation: rotation,
+        }
     }
 }
