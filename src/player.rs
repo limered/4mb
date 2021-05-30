@@ -1,6 +1,6 @@
 use ggez::input::keyboard::{self, KeyCode};
 use ggez::nalgebra::{self as na, Point2, Vector2};
-use ggez::{graphics, Context};
+use ggez::{graphics, Context, GameResult};
 
 use crate::physic;
 
@@ -38,6 +38,7 @@ impl Player {
     pub fn update(&mut self, dt: f32, ctx: &Context) {
         self.move_self(ctx);
         self.rotate_self(dt, ctx);
+        self.check_bounds();
 
         self.physics.animate(dt);
         self.position = Point2::new(self.physics.position.x, self.physics.position.y);
@@ -50,6 +51,25 @@ impl Player {
             (self.position, self.rotation, graphics::WHITE),
         )
     }
+
+    fn check_bounds(&mut self) {
+        let pos = self.physics.position;
+        if pos.x < 0.0 {
+            self.physics.stop();
+            self.physics.position.x = 0.0;
+        } else if pos.x > 800.0 {
+            self.physics.stop();
+            self.physics.position.x = 800.0;
+        }
+        if pos.y < 0.0 {
+            self.physics.stop();
+            self.physics.position.y = 0.0;
+        } else if pos.y > 600.0 {
+            self.physics.stop();
+            self.physics.position.y = 600.0;
+        }
+    }
+
     fn rotate_self(&mut self, dt: f32, ctx: &Context) {
         let mut r = na::Rotation2::new(0.0);
         if keyboard::is_key_pressed(ctx, KeyCode::D) {
