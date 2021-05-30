@@ -44,7 +44,7 @@ impl Player {
         self.position = Point2::new(self.physics.position.x, self.physics.position.y);
     }
 
-    pub fn render(&mut self, ctx: &mut Context) -> GameResult<()>{
+    pub fn render(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::draw(
             ctx,
             &self.triangle_mesh,
