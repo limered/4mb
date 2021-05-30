@@ -2,7 +2,10 @@ use ggez::input::keyboard::{self, KeyCode};
 use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{graphics, Context};
 
+use crate::physic;
+
 pub struct Player {
+    pub physics: physic::Physics,
     pub rotation: f32,
     pub direction: na::Rotation2<f32>,
     pub position: Point2<f32>,
@@ -12,6 +15,7 @@ pub struct Player {
 impl Player {
     pub fn new(ctx: &mut Context) -> Self {
         Player {
+            physics: physic::Physics::new(Vector2::new(300.0, 400.0), 0.98),
             rotation: 0.0,
             direction: na::Rotation2::new(0.0),
             position: Point2::new(300.0, 400.0),
@@ -32,30 +36,31 @@ impl Player {
     }
 
     pub fn update(&mut self, dt: f32, ctx: &Context) {
-        self.move_self(dt, ctx);
+        self.move_self(ctx);
         self.rotate_self(dt, ctx);
+
+        self.physics.animate(dt);
+        self.position = Point2::new(self.physics.position.x, self.physics.position.y);
     }
 
     fn rotate_self(&mut self, dt: f32, ctx: &Context) {
         let mut r = na::Rotation2::new(0.0);
         if keyboard::is_key_pressed(ctx, KeyCode::D) {
-            r = na::Rotation2::new(1.0 * dt);
+            r = na::Rotation2::new(5.0 * dt);
         } else if keyboard::is_key_pressed(ctx, KeyCode::A) {
-            r = na::Rotation2::new(-1.0 * dt);
+            r = na::Rotation2::new(-5.0 * dt);
         }
         self.direction = r * self.direction;
         self.rotation = self.direction.angle();
     }
 
-    fn move_self(&mut self, dt: f32, ctx: &Context) {
+    fn move_self(&mut self, ctx: &Context) {
         let mut movement: f32 = 0.0;
         if keyboard::is_key_pressed(ctx, KeyCode::W) {
-            movement = -100.0;
+            movement = -1000.0;
         } else if keyboard::is_key_pressed(ctx, KeyCode::S) {
-            movement = 100.0;
+            movement = 1000.0;
         }
-        let delta = self.direction * Vector2::new(0.0, movement) * dt;
-        self.position.y += delta.y;
-        self.position.x += delta.x;
+        self.physics.acceleration = self.direction * Vector2::new(0.0, movement);
     }
 }

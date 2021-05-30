@@ -3,6 +3,7 @@ use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
 mod player;
+mod physic;
 
 fn main() {
     let window_setup = WindowSetup {
