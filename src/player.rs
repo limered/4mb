@@ -1,5 +1,5 @@
 use ggez::input::keyboard::{self, KeyCode};
-use ggez::nalgebra::{self as na, Point2, Vector2};
+use ggez::nalgebra::{self as na, Point2, Vector2, norm};
 use ggez::{graphics, Context, GameResult};
 
 use crate::physic;
@@ -7,11 +7,18 @@ use crate::physic;
 const PLAYER_ACC: f32 = 800.0;
 const PLAYER_TURN: f32 = 4.0;
 
+#[derive(Debug)]
+enum PlayerState{
+    Sliding,
+    Boosting,
+}
+
 pub struct Player {
     pub transform: physic::Transform,
     pub body: physic::Body,
     pub direction: na::Rotation2<f32>,
     pub mesh: graphics::Mesh,
+    state: PlayerState,
 }
 
 impl Player {
@@ -21,6 +28,7 @@ impl Player {
             body: physic::Body::new(Vector2::new(300.0, 400.0), 0.99),
             transform,
             direction: na::Rotation2::new(0.0),
+            state: PlayerState::Sliding,
             mesh: graphics::MeshBuilder::new()
                 .line(
                     &[
@@ -42,8 +50,25 @@ impl Player {
         self.rotate_self(dt, ctx);
         self.check_bounds();
 
+        self.update_state();
+
         self.body.animate(dt);
         self.transform.position = Point2::new(self.body.position.x, self.body.position.y);
+    }
+
+    fn update_state(&mut self){
+        match self.state {
+            PlayerState::Boosting => {
+                if self.body.acceleration.norm() <= 0.0{
+                    self.state = PlayerState::Sliding;
+                }
+            }
+            PlayerState::Sliding => {
+                if self.body.acceleration.norm() > 0.0{
+                    self.state = PlayerState::Boosting;
+                }
+            },
+        }
     }
 
     pub fn render(&mut self, ctx: &mut Context) -> GameResult<()> {
