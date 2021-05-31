@@ -56,7 +56,9 @@ impl EventHandler for MyGame {
         graphics::clear(ctx, graphics::BLACK);
 
         self.player.render(ctx).expect("Error during Player Render");
-        self.element.render(ctx).expect("Error during Element Render");
+        self.element
+            .render(ctx)
+            .expect("Error during Element Render");
 
         graphics::present(ctx)
     }
