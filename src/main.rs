@@ -55,8 +55,8 @@ impl EventHandler for MyGame {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, graphics::BLACK);
 
-        self.player.render(ctx)?;
-        self.element.render(ctx)?;
+        self.player.render(ctx).expect("Error during Player Render");
+        self.element.render(ctx).expect("Error during Element Render");
 
         graphics::present(ctx)
     }
