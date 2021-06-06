@@ -49,6 +49,7 @@ impl EventHandler for MyGame {
         let dt = ggez::timer::delta(ctx).as_secs_f32();
 
         self.player.update(dt, &ctx);
+        self.element.check_collision(&self.player.collider);
 
         Ok(())
     }

@@ -1,15 +1,16 @@
-use crate::collision_system::{PolyCollision, Rotatable};
+use crate::collision_system::{is_collision, PolyCollision, Rotatable};
 
 use ggez::nalgebra as na;
 use na::{Rotation2, Vector2};
 
 pub struct QuadCollider {
-    vertices: [Vector2<f32>; 4],
+    pub center: Vector2<f32>,
+    pub vertices: [Vector2<f32>; 4],
 }
 
 impl QuadCollider {
-    pub fn new(vertices: [Vector2<f32>; 4]) -> Self {
-        Self { vertices }
+    pub fn new(center: Vector2<f32>, vertices: [Vector2<f32>; 4]) -> Self {
+        Self { center, vertices }
     }
 }
 
@@ -19,7 +20,7 @@ impl Rotatable for QuadCollider {
         for (i, vertex) in self.vertices.iter().enumerate() {
             vertices[i] = rotation.transform_vector(vertex);
         }
-        Self::new(vertices)
+        Self::new(self.center, vertices)
     }
 }
 
@@ -34,6 +35,10 @@ impl PolyCollision for QuadCollider {
         edges
     }
     fn vertices(&self) -> Vec<Vector2<f32>> {
-        self.vertices.to_vec()
+        self.vertices.iter().map(|v| self.center + v).collect()
+    }
+    fn collide(&self, other: &impl PolyCollision) -> bool {
+        let (collided, _vec) = is_collision(self, other);
+        collided
     }
 }

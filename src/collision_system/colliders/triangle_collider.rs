@@ -1,4 +1,4 @@
-use crate::collision_system::{PolyCollision, Rotatable};
+use crate::collision_system::{is_collision, PolyCollision, Rotatable};
 
 use ggez::nalgebra as na;
 use ggez::{graphics, Context};
@@ -15,19 +15,28 @@ impl TriangleCollider {
     }
 
     pub fn draw(&self, ctx: &mut Context) {
-        let verts: Vec<Point2<f32>> = self
+        let mut verts: Vec<Point2<f32>> = self
             .vertices()
             .iter()
             .map(|v| Point2::new(v.x, v.y))
             .collect();
+        verts.push(verts[0].clone());
         let mesh = graphics::MeshBuilder::new()
             .line(&verts, 2.0, graphics::WHITE)
             .unwrap()
             .build(ctx)
             .unwrap();
 
-        graphics::draw(ctx, &mesh, (Point2::new(0.0, 0.0), 0.0, graphics::WHITE))
-            .expect("cant draw collider");
+        graphics::draw(
+            ctx,
+            &mesh,
+            (
+                Point2::new(0.0, 0.0),
+                0.0,
+                graphics::Color::new(1.0, 0.0, 0.0, 1.0),
+            ),
+        )
+        .expect("cant draw collider");
     }
 }
 
@@ -53,5 +62,9 @@ impl PolyCollision for TriangleCollider {
     }
     fn vertices(&self) -> Vec<Vector2<f32>> {
         self.vertices.iter().map(|v| self.center + v).collect()
+    }
+    fn collide(&self, other: &impl PolyCollision) -> bool {
+        let (collided, _vec) = is_collision(self, other);
+        collided
     }
 }

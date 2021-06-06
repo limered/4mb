@@ -1,12 +1,18 @@
+use crate::collision_system::PolyCollision;
 use ggez::nalgebra::{Point2, Vector2};
 use ggez::{graphics, Context, GameResult};
 
+use crate::collision_system::colliders::quad_collider::QuadCollider;
 use crate::physic;
+
+const RED: graphics::Color = graphics::Color::new(1.0, 0.0, 0.0, 1.0);
 
 pub struct Destroyable {
     pub transform: physic::Transform,
     pub body: physic::Body,
     pub mesh: graphics::Mesh,
+    pub collider: QuadCollider,
+    pub render_color: graphics::Color,
 }
 
 impl Destroyable {
@@ -32,6 +38,24 @@ impl Destroyable {
                 .unwrap()
                 .build(ctx)
                 .unwrap(),
+            collider: QuadCollider::new(
+                Vector2::new(position.x, position.y),
+                [
+                    Vector2::new(15.0, 15.0),
+                    Vector2::new(15.0, -15.0),
+                    Vector2::new(-15.0, -15.0),
+                    Vector2::new(-15.0, 15.0),
+                ],
+            ),
+            render_color: graphics::WHITE,
+        }
+    }
+
+    pub fn check_collision(&mut self, player: &impl PolyCollision) {
+        if self.collider.collide(player) {
+            self.render_color = RED;
+        } else {
+            self.render_color = graphics::WHITE;
         }
     }
 
@@ -42,7 +66,7 @@ impl Destroyable {
             (
                 self.transform.position,
                 self.transform.rotation,
-                graphics::WHITE,
+                self.render_color,
             ),
         )
     }

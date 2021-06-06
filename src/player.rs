@@ -3,7 +3,7 @@ use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{graphics, Context, GameResult};
 use rand::Rng;
 
-use crate::collision_system::TriangleCollider::TriangleCollider;
+use crate::collision_system::colliders::triangle_collider::TriangleCollider;
 use crate::physic;
 
 const PLAYER_ACC: f32 = 800.0;
@@ -22,7 +22,7 @@ pub struct Player {
     mesh: graphics::Mesh,
     state: PlayerState,
     boost_mesh: graphics::Mesh,
-    collider: TriangleCollider,
+    pub collider: TriangleCollider,
 }
 
 impl Player {
