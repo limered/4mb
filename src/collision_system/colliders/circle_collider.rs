@@ -18,7 +18,6 @@ impl CircleCollider {
 }
 
 impl Rotatable for CircleCollider {
-    fn rotate(&self, _rotation: Rotation2<f32>) -> Self {
-        Self::new(self.center, self.radius)
+    fn rotate(&mut self, _rotation: &Rotation2<f32>) {
     }
 }

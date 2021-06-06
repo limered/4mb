@@ -4,6 +4,7 @@ use ggez::{graphics, Context, GameResult};
 use rand::Rng;
 
 use crate::collision_system::colliders::triangle_collider::TriangleCollider;
+use crate::collision_system::Rotatable;
 use crate::physic;
 
 const PLAYER_ACC: f32 = 800.0;
@@ -90,6 +91,7 @@ impl Player {
     }
 
     fn update_collider(&mut self) {
+        self.collider.rotate(&self.direction);
         self.collider.center = self.body.position.clone();
     }
 
@@ -130,7 +132,7 @@ impl Player {
             _ => (),
         }
 
-        self.collider.draw(ctx);
+        // self.collider.draw(ctx);
 
         graphics::draw(
             ctx,

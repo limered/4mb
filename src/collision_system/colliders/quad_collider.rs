@@ -1,4 +1,5 @@
-use crate::collision_system::{is_collision, PolyCollision, Rotatable};
+use crate::collision_system::sat::is_collision;
+use crate::collision_system::{PolyCollision, Rotatable};
 
 use ggez::nalgebra as na;
 use na::{Rotation2, Vector2};
@@ -15,12 +16,11 @@ impl QuadCollider {
 }
 
 impl Rotatable for QuadCollider {
-    fn rotate(&self, rotation: Rotation2<f32>) -> Self {
+    fn rotate(&mut self, rotation: &Rotation2<f32>) {
         let mut vertices = [Vector2::x(); 4];
         for (i, vertex) in self.vertices.iter().enumerate() {
             vertices[i] = rotation.transform_vector(vertex);
         }
-        Self::new(self.center, vertices)
     }
 }
 

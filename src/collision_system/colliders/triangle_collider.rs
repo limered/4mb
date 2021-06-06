@@ -1,4 +1,5 @@
-use crate::collision_system::{is_collision, PolyCollision, Rotatable};
+use crate::collision_system::sat::is_collision;
+use crate::collision_system::{PolyCollision, Rotatable};
 
 use ggez::nalgebra as na;
 use ggez::{graphics, Context};
@@ -7,11 +8,12 @@ use na::{Point2, Rotation2, Vector2};
 pub struct TriangleCollider {
     pub center: Vector2<f32>,
     pub vertices: [Vector2<f32>; 3],
+    rotated_vertices: [Vector2<f32>; 3],
 }
 
 impl TriangleCollider {
     pub fn new(center: Vector2<f32>, vertices: [Vector2<f32>; 3]) -> Self {
-        Self { center, vertices }
+        Self { center, vertices, rotated_vertices: vertices }
     }
 
     pub fn draw(&self, ctx: &mut Context) {
@@ -41,12 +43,12 @@ impl TriangleCollider {
 }
 
 impl Rotatable for TriangleCollider {
-    fn rotate(&self, rotation: Rotation2<f32>) -> Self {
+    fn rotate(&mut self, rotation: &Rotation2<f32>) {
         let mut vertices = [Vector2::x(); 3];
         for (i, vertex) in self.vertices.iter().enumerate() {
             vertices[i] = rotation.transform_vector(vertex);
         }
-        Self::new(self.center, vertices)
+        self.rotated_vertices = vertices;
     }
 }
 
@@ -61,7 +63,7 @@ impl PolyCollision for TriangleCollider {
         edges
     }
     fn vertices(&self) -> Vec<Vector2<f32>> {
-        self.vertices.iter().map(|v| self.center + v).collect()
+        self.rotated_vertices.iter().map(|v| self.center + v).collect()
     }
     fn collide(&self, other: &impl PolyCollision) -> bool {
         let (collided, _vec) = is_collision(self, other);
