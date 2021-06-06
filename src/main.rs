@@ -3,6 +3,7 @@ use ggez::event::{self, EventHandler};
 use ggez::nalgebra::Vector2;
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
+mod collision_system;
 mod destroyable;
 mod physic;
 mod player;

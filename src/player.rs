@@ -3,6 +3,7 @@ use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{graphics, Context, GameResult};
 use rand::Rng;
 
+use crate::collision_system::TriangleCollider::TriangleCollider;
 use crate::physic;
 
 const PLAYER_ACC: f32 = 800.0;
@@ -21,6 +22,7 @@ pub struct Player {
     mesh: graphics::Mesh,
     state: PlayerState,
     boost_mesh: graphics::Mesh,
+    collider: TriangleCollider,
 }
 
 impl Player {
@@ -31,6 +33,14 @@ impl Player {
             transform,
             direction: na::Rotation2::new(0.0),
             state: PlayerState::Sliding,
+            collider: TriangleCollider::new(
+                Vector2::new(0.0, 0.0),
+                [
+                    Vector2::new(15.0, 15.0),
+                    Vector2::new(0.0, -15.0),
+                    Vector2::new(-15.0, 15.0),
+                ],
+            ),
             mesh: graphics::MeshBuilder::new()
                 .line(
                     &[
@@ -71,16 +81,17 @@ impl Player {
     pub fn update(&mut self, dt: f32, ctx: &Context) {
         self.move_self(ctx);
         self.rotate_self(dt, ctx);
+        self.update_collider();
         self.check_bounds();
         self.update_state();
-
-        self.update_boost();
 
         self.body.animate(dt);
         self.transform.position = Point2::new(self.body.position.x, self.body.position.y);
     }
 
-    fn update_boost(&mut self) {}
+    fn update_collider(&mut self) {
+        self.collider.center = self.body.position.clone();
+    }
 
     fn update_state(&mut self) {
         match self.state {
@@ -118,6 +129,9 @@ impl Player {
             }
             _ => (),
         }
+
+        self.collider.draw(ctx);
+
         graphics::draw(
             ctx,
             &self.mesh,
