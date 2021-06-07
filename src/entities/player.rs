@@ -1,3 +1,4 @@
+use crate::render_system::line_mesh::LineMeshRenderer;
 use ggez::input::keyboard::{self, KeyCode};
 use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{graphics, Context, GameResult};
@@ -5,10 +6,13 @@ use rand::Rng;
 
 use crate::collision_system::colliders::triangle_collider::TriangleCollider;
 use crate::collision_system::Rotatable;
+use crate::entities::player_mesh_creator;
 use crate::physic;
+use crate::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 800.0;
 const PLAYER_TURN: f32 = 4.0;
+const PLAYER_POINTS: [(f32, f32); 3] = [(15.0, 15.0), (0.0, -15.0), (-15.0, 15.0)];
 
 #[derive(Debug)]
 enum PlayerState {
@@ -20,7 +24,7 @@ pub struct Player {
     transform: physic::Transform,
     body: physic::Body,
     direction: na::Rotation2<f32>,
-    mesh: graphics::Mesh,
+    main_renderer: LineMeshRenderer,
     state: PlayerState,
     boost_mesh: graphics::Mesh,
     pub collider: TriangleCollider,
@@ -36,52 +40,19 @@ impl Player {
             state: PlayerState::Sliding,
             collider: TriangleCollider::new(
                 Vector2::new(0.0, 0.0),
-                [
-                    Vector2::new(15.0, 15.0),
-                    Vector2::new(0.0, -15.0),
-                    Vector2::new(-15.0, 15.0),
-                ],
+                [PLAYER_POINTS[0], PLAYER_POINTS[1], PLAYER_POINTS[2]],
             ),
-            mesh: graphics::MeshBuilder::new()
-                .line(
-                    &[
-                        Point2::new(15.0, 15.0),
-                        Point2::new(0.0, -15.0),
-                        Point2::new(-15.0, 15.0),
-                    ],
-                    2.0,
-                    graphics::WHITE,
-                )
-                .unwrap()
-                .build(ctx)
-                .unwrap(),
-            boost_mesh: graphics::MeshBuilder::new()
-                .line(
-                    &[Point2::new(-3.0, 15.0), Point2::new(-6.0, 23.0)],
-                    2.0,
-                    graphics::WHITE,
-                )
-                .unwrap()
-                .line(
-                    &[Point2::new(0.0, 15.0), Point2::new(0.0, 24.0)],
-                    2.0,
-                    graphics::WHITE,
-                )
-                .unwrap()
-                .line(
-                    &[Point2::new(3.0, 15.0), Point2::new(6.0, 23.0)],
-                    2.0,
-                    graphics::WHITE,
-                )
-                .unwrap()
-                .build(ctx)
-                .unwrap(),
+            main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(
+                &PLAYER_POINTS,
+                ctx,
+            )),
+            boost_mesh: player_mesh_creator::create_player_boost_mesh(ctx),
         }
     }
 
     pub fn update(&mut self, dt: f32, ctx: &Context) {
-        self.move_self(ctx);
-        self.rotate_self(dt, ctx);
+        self.control_movement(ctx);
+        self.control_rotation(dt, ctx);
         self.update_collider();
         self.check_bounds();
         self.update_state();
@@ -111,6 +82,9 @@ impl Player {
     }
 
     pub fn render(&mut self, ctx: &mut Context) -> GameResult<()> {
+        self.main_renderer.render(ctx, self);
+        // self.collider.draw(ctx);
+
         match self.state {
             PlayerState::Boosting => {
                 let mut rng = rand::thread_rng();
@@ -130,19 +104,9 @@ impl Player {
                 .expect("Booster could not be drawn.");
             }
             _ => (),
-        }
+        };
 
-        // self.collider.draw(ctx);
-
-        graphics::draw(
-            ctx,
-            &self.mesh,
-            (
-                self.transform.position,
-                self.transform.rotation,
-                graphics::WHITE,
-            ),
-        )
+        Ok(())
     }
 
     fn check_bounds(&mut self) {
@@ -163,7 +127,7 @@ impl Player {
         }
     }
 
-    fn rotate_self(&mut self, dt: f32, ctx: &Context) {
+    fn control_rotation(&mut self, dt: f32, ctx: &Context) {
         let mut r = na::Rotation2::new(0.0);
         if keyboard::is_key_pressed(ctx, KeyCode::D) {
             r = na::Rotation2::new(PLAYER_TURN * dt);
@@ -174,7 +138,7 @@ impl Player {
         self.transform.rotation = self.direction.angle();
     }
 
-    fn move_self(&mut self, ctx: &Context) {
+    fn control_movement(&mut self, ctx: &Context) {
         let mut movement: f32 = 0.0;
         if keyboard::is_key_pressed(ctx, KeyCode::W) {
             movement = -PLAYER_ACC;
@@ -182,5 +146,14 @@ impl Player {
             movement = PLAYER_ACC;
         }
         self.body.acceleration = self.direction * Vector2::new(0.0, movement);
+    }
+}
+
+impl Renderable for Player {
+    fn position(&self) -> Point2<f32> {
+        self.transform.position
+    }
+    fn rotation(&self) -> f32 {
+        self.transform.rotation
     }
 }

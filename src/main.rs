@@ -3,10 +3,13 @@ use ggez::event::{self, EventHandler};
 use ggez::nalgebra::Vector2;
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
+use crate::entities::player;
+
 mod collision_system;
 mod destroyable;
+mod entities;
 mod physic;
-mod player;
+mod render_system;
 
 fn main() {
     let window_setup = WindowSetup {
