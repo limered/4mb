@@ -63,7 +63,10 @@ impl PolyCollision for TriangleCollider {
         edges
     }
     fn vertices(&self) -> Vec<Vector2<f32>> {
-        self.rotated_vertices.iter().map(|v| self.center + v).collect()
+        self.rotated_vertices
+            .iter()
+            .map(|v| self.center + v)
+            .collect()
     }
     fn collide(&self, other: &impl PolyCollision) -> bool {
         let (collided, _vec) = is_collision(self, other);
