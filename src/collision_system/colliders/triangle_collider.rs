@@ -12,8 +12,20 @@ pub struct TriangleCollider {
 }
 
 impl TriangleCollider {
-    pub fn new(center: Vector2<f32>, vertices: [Vector2<f32>; 3]) -> Self {
-        Self { center, vertices, rotated_vertices: vertices }
+    pub fn new(center: Vector2<f32>, vertices: [(f32, f32); 3]) -> Self {
+        Self {
+            center,
+            vertices: [
+                Vector2::new(vertices[0].0, vertices[0].1),
+                Vector2::new(vertices[1].0, vertices[1].1),
+                Vector2::new(vertices[2].0, vertices[2].1),
+            ],
+            rotated_vertices: [
+                Vector2::new(vertices[0].0, vertices[0].1),
+                Vector2::new(vertices[1].0, vertices[1].1),
+                Vector2::new(vertices[2].0, vertices[2].1),
+            ],
+        }
     }
 
     pub fn draw(&self, ctx: &mut Context) {
