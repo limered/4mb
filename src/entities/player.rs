@@ -3,8 +3,8 @@ use ggez::input::keyboard::{self, KeyCode};
 use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{Context, GameResult};
 
-use crate::collision_system::colliders::triangle_collider::TriangleCollider;
-use crate::collision_system::Rotatable;
+use crate::collision_system::colliders::poly_collider::PolyCollider;
+use crate::collision_system::{sat, Collidable, Rotatable};
 use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
 use crate::physic;
@@ -27,7 +27,7 @@ pub struct Player {
     main_renderer: LineMeshRenderer,
     state: PlayerState,
     boost: Boost,
-    pub collider: TriangleCollider,
+    pub collider: PolyCollider,
 }
 
 impl Player {
@@ -38,9 +38,12 @@ impl Player {
             transform,
             direction: na::Rotation2::new(0.0),
             state: PlayerState::Sliding,
-            collider: TriangleCollider::new(
+            collider: PolyCollider::new(
                 Vector2::new(0.0, 0.0),
-                [PLAYER_POINTS[0], PLAYER_POINTS[1], PLAYER_POINTS[2]],
+                PLAYER_POINTS
+                    .iter()
+                    .map(|p| Vector2::new(p.0, p.1))
+                    .collect(),
             ),
             main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(
                 &PLAYER_POINTS,
@@ -148,5 +151,18 @@ impl Renderable for Player {
     }
     fn rotation(&self) -> f32 {
         self.transform.rotation
+    }
+}
+
+impl Collidable for Player {
+    fn collide(&mut self, other: &mut impl Collidable) -> (bool, Vector2<f32>) {
+        sat::is_collision(self.collider(), other.collider())
+    }
+    fn respond(&mut self, mpv: Vector2<f32>) {
+        self.body.stop();
+        self.body.acceleration = -mpv;
+    }
+    fn collider(&self) -> &PolyCollider {
+        &self.collider
     }
 }

@@ -1,8 +1,8 @@
-use crate::collision_system::PolyCollision;
+use crate::collision_system::{sat, Collidable};
 use ggez::nalgebra::{Point2, Vector2};
 use ggez::{graphics, Context, GameResult};
 
-use crate::collision_system::colliders::quad_collider::QuadCollider;
+use crate::collision_system::colliders::poly_collider::PolyCollider;
 use crate::physic;
 
 const RED: graphics::Color = graphics::Color::new(1.0, 0.0, 0.0, 1.0);
@@ -11,7 +11,7 @@ pub struct Destroyable {
     pub transform: physic::Transform,
     pub body: physic::Body,
     pub mesh: graphics::Mesh,
-    pub collider: QuadCollider,
+    pub collider: PolyCollider,
     pub render_color: graphics::Color,
 }
 
@@ -38,9 +38,9 @@ impl Destroyable {
                 .unwrap()
                 .build(ctx)
                 .unwrap(),
-            collider: QuadCollider::new(
+            collider: PolyCollider::new(
                 Vector2::new(position.x, position.y),
-                [
+                vec![
                     Vector2::new(15.0, 15.0),
                     Vector2::new(15.0, -15.0),
                     Vector2::new(-15.0, -15.0),
@@ -48,14 +48,6 @@ impl Destroyable {
                 ],
             ),
             render_color: graphics::WHITE,
-        }
-    }
-
-    pub fn check_collision(&mut self, player: &impl PolyCollision) {
-        if self.collider.collide(player) {
-            self.render_color = RED;
-        } else {
-            self.render_color = graphics::WHITE;
         }
     }
 
@@ -69,5 +61,18 @@ impl Destroyable {
                 self.render_color,
             ),
         )
+    }
+}
+
+impl Collidable for Destroyable {
+    fn collide(&mut self, other: &mut impl Collidable) -> (bool, Vector2<f32>) {
+        sat::is_collision(self.collider(), other.collider())
+    }
+    fn respond(&mut self, _mpv: Vector2<f32>) {
+        self.render_color = RED;
+    }
+
+    fn collider(&self) -> &PolyCollider {
+        &self.collider
     }
 }
