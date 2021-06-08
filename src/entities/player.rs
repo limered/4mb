@@ -1,11 +1,11 @@
 use crate::render_system::line_mesh::LineMeshRenderer;
 use ggez::input::keyboard::{self, KeyCode};
 use ggez::nalgebra::{self as na, Point2, Vector2};
-use ggez::{graphics, Context, GameResult};
-use rand::Rng;
+use ggez::{Context, GameResult};
 
 use crate::collision_system::colliders::triangle_collider::TriangleCollider;
 use crate::collision_system::Rotatable;
+use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
 use crate::physic;
 use crate::render_system::Renderable;
@@ -21,12 +21,12 @@ enum PlayerState {
 }
 
 pub struct Player {
-    transform: physic::Transform,
+    pub transform: physic::Transform,
     body: physic::Body,
     direction: na::Rotation2<f32>,
     main_renderer: LineMeshRenderer,
     state: PlayerState,
-    boost_mesh: graphics::Mesh,
+    boost: Boost,
     pub collider: TriangleCollider,
 }
 
@@ -46,19 +46,26 @@ impl Player {
                 &PLAYER_POINTS,
                 ctx,
             )),
-            boost_mesh: player_mesh_creator::create_player_boost_mesh(ctx),
+            boost: Boost::new(ctx),
         }
     }
 
     pub fn update(&mut self, dt: f32, ctx: &Context) {
         self.control_movement(ctx);
         self.control_rotation(dt, ctx);
-        self.update_collider();
+
         self.check_bounds();
         self.update_state();
 
         self.body.animate(dt);
         self.transform.position = Point2::new(self.body.position.x, self.body.position.y);
+
+        self.update_collider();
+        self.update_boost();
+    }
+
+    fn update_boost(&mut self) {
+        self.boost.update(&self.transform);
     }
 
     fn update_collider(&mut self) {
@@ -87,21 +94,7 @@ impl Player {
 
         match self.state {
             PlayerState::Boosting => {
-                let mut rng = rand::thread_rng();
-                let x_rng: f32 = rng.gen();
-                let x_rng = (x_rng * 6.0) - 3.0;
-                let y_rng: f32 = rng.gen();
-                let y_rng = (y_rng * 6.0) - 3.0;
-                let boost_position = Point2::new(
-                    self.transform.position.x + x_rng,
-                    self.transform.position.y + y_rng,
-                );
-                graphics::draw(
-                    ctx,
-                    &self.boost_mesh,
-                    (boost_position, self.transform.rotation, graphics::WHITE),
-                )
-                .expect("Booster could not be drawn.");
+                self.boost.render(ctx);
             }
             _ => (),
         };
