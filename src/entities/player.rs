@@ -155,12 +155,9 @@ impl Renderable for Player {
 }
 
 impl Collidable for Player {
-    fn collide(&mut self, other: &mut impl Collidable) -> (bool, Vector2<f32>) {
-        sat::is_collision(self.collider(), other.collider())
-    }
     fn respond(&mut self, mpv: Vector2<f32>) {
         self.body.stop();
-        self.body.acceleration = -mpv;
+        self.body.position += mpv;
     }
     fn collider(&self) -> &PolyCollider {
         &self.collider

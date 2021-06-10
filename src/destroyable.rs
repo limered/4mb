@@ -65,9 +65,6 @@ impl Destroyable {
 }
 
 impl Collidable for Destroyable {
-    fn collide(&mut self, other: &mut impl Collidable) -> (bool, Vector2<f32>) {
-        sat::is_collision(self.collider(), other.collider())
-    }
     fn respond(&mut self, _mpv: Vector2<f32>) {
         self.render_color = RED;
     }
