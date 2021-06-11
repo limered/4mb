@@ -90,12 +90,22 @@ impl<'a> Coll<'a> {
         let (mut min1, mut max1) = Coll::calculate_interval(self.first, self.axis[*i_num_axes]);
         let (min2, max2) = Coll::calculate_interval(self.second, self.axis[*i_num_axes]);
 
-        let h = self.offset.dot(&self.axis[*i_num_axes]);
-        min1 += h;
-        max1 += h;
+        // let h = self.offset.dot(&self.axis[*i_num_axes]);
+        // min1 += h;
+        // max1 += h;
 
         let d0 = min1 - max2;
         let d1 = min2 - max1;
+
+        /*
+            if max1 >= min2 && max2 >= min1 {
+            let d = (max2 - min1).min(max1 - min2);
+            let d_over_o_squared = d / o.dot(o) + 1e-10;
+            let pv = d_over_o_squared * o;
+            return (false, pv);
+        }
+
+        */
 
         if d0 > 0.0 || d1 > 0.0 {
             // var v = vec2.dot(coll.vel, coll.axis[iNumAxes]);
@@ -112,24 +122,18 @@ impl<'a> Coll<'a> {
 
             return false;
         } else {
-            //overlap. get the interval, as a the smallest of |d0| and |d1|
+            //overlap. get the interval, as a the biggest of |d0| and |d1|
             //return negative number to mark it as an overlap
-            let t = match d0 > d1 {
-                true => d0,
-                false => d1,
-            };
-            self.taxis.push(t);
+            self.taxis.push(d0.max(d1));
             return true;
         }
-
-        false
     }
 
     fn find_collision_plane(&mut self) -> bool {
         let mut mini = false;
         for (i, axis) in self.axis.iter().enumerate() {
             let n = axis.norm();
-            self.taxis[i] /= n;
+            self.taxis[i] /= n + 1e-10;
 
             if self.taxis[i] > self.t || !mini {
                 mini = true;
