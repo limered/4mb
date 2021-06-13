@@ -1,36 +1,26 @@
-use crate::collision_system::colliders::poly_collider::PolyCollider;
-use ggez::nalgebra as na;
-use na::{Rotation2, Vector2};
-
-pub mod colliders;
-pub mod sat;
-
-pub trait Rotatable {
-    fn rotate(&mut self, rotation: &Rotation2<f32>);
-}
-
-pub trait PolyCollision {
-    fn edges_of(&self) -> Vec<Vector2<f32>>;
-    fn vertices(&self) -> Vec<Vector2<f32>>;
-}
+use na::{Isometry2, Vector2};
+use nalgebra as na;
+use ncollide2d::query::{self, DefaultTOIDispatcher};
+use ncollide2d::shape::Polyline;
 
 pub trait Collidable {
-    fn respond(&mut self, mpv: Vector2<f32>);
-    fn collider(&self) -> &PolyCollider;
+    fn process_overlap(&mut self, mpv: Vector2<f32>);
+    fn process_collision(&mut self, other: &impl Collidable, n: &Vector2<f32>, t: f32);
+    fn position(&self) -> Isometry2<f32>;
+    fn collider(&self) -> Polyline<f32>;
+    fn velocity(&self) -> Vector2<f32>;
 }
 
-pub fn collide(first: &mut impl Collidable, second: &mut impl Collidable) {
-    let mut coll = sat::Coll::new(
-        first.collider(),
-        second.collider(),
-        &Vector2::new(0.0, 0.0),
-        &Vector2::new(0.0, 0.0),
+pub fn _collide(first: &mut impl Collidable, second: &mut impl Collidable) {
+    let _toi = query::time_of_impact(
+        &DefaultTOIDispatcher,
+        &first.position(),
+        &first.velocity(),
+        &first.collider(),
+        &second.position(),
+        &second.velocity(),
+        &second.collider(),
+        100.0,
+        100.0,
     );
-    if coll.collide() {
-        println!("Hit {}", coll.t)
-    }
-    // if coll.collide() {
-    //     first.respond(coll.n);
-    //     second.respond(coll.n);
-    // }
 }

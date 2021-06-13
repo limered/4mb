@@ -52,7 +52,7 @@ impl EventHandler for MyGame {
         let dt = ggez::timer::delta(ctx).as_secs_f32();
 
         self.player.update(dt, &ctx);
-        collision_system::collide(&mut self.player, &mut self.element);
+        // collision_system::collide(&mut self.player, &mut self.element);
 
         Ok(())
     }

@@ -1,17 +1,14 @@
-use crate::collision_system::{sat, Collidable};
 use ggez::nalgebra::{Point2, Vector2};
 use ggez::{graphics, Context, GameResult};
 
-use crate::collision_system::colliders::poly_collider::PolyCollider;
 use crate::physic;
 
-const RED: graphics::Color = graphics::Color::new(1.0, 0.0, 0.0, 1.0);
+const _RED: graphics::Color = graphics::Color::new(1.0, 0.0, 0.0, 1.0);
 
 pub struct Destroyable {
     pub transform: physic::Transform,
     pub body: physic::Body,
     pub mesh: graphics::Mesh,
-    pub collider: PolyCollider,
     pub render_color: graphics::Color,
 }
 
@@ -38,15 +35,6 @@ impl Destroyable {
                 .unwrap()
                 .build(ctx)
                 .unwrap(),
-            collider: PolyCollider::new(
-                Vector2::new(position.x, position.y),
-                vec![
-                    Vector2::new(15.0, 15.0),
-                    Vector2::new(15.0, -15.0),
-                    Vector2::new(-15.0, -15.0),
-                    Vector2::new(-15.0, 15.0),
-                ],
-            ),
             render_color: graphics::WHITE,
         }
     }
@@ -64,12 +52,18 @@ impl Destroyable {
     }
 }
 
-impl Collidable for Destroyable {
-    fn respond(&mut self, _mpv: Vector2<f32>) {
-        self.render_color = RED;
-    }
+// impl Collidable for Destroyable {
+//     fn process_overlap(&mut self, _mpv: Vector2<f32>) {
+//         self.render_color = RED;
+//     }
+//     fn process_collision(&mut self, other: &impl Collidable, n: &Vector2<f32>, t: f32){
 
-    fn collider(&self) -> &PolyCollider {
-        &self.collider
-    }
-}
+//     }
+
+//     fn collider(&self) -> PolyCollider {
+//         self.collider.clone()
+//     }
+//     fn velocity(&self) -> Vector2<f32> {
+//         self.body.velocity.clone()
+//     }
+// }

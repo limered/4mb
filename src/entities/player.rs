@@ -3,8 +3,6 @@ use ggez::input::keyboard::{self, KeyCode};
 use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{Context, GameResult};
 
-use crate::collision_system::colliders::poly_collider::PolyCollider;
-use crate::collision_system::{sat, Collidable, Rotatable};
 use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
 use crate::physic;
@@ -27,7 +25,6 @@ pub struct Player {
     main_renderer: LineMeshRenderer,
     state: PlayerState,
     boost: Boost,
-    pub collider: PolyCollider,
 }
 
 impl Player {
@@ -38,13 +35,6 @@ impl Player {
             transform,
             direction: na::Rotation2::new(0.0),
             state: PlayerState::Sliding,
-            collider: PolyCollider::new(
-                Vector2::new(0.0, 0.0),
-                PLAYER_POINTS
-                    .iter()
-                    .map(|p| Vector2::new(p.0, p.1))
-                    .collect(),
-            ),
             main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(
                 &PLAYER_POINTS,
                 ctx,
@@ -71,10 +61,7 @@ impl Player {
         self.boost.update(&self.transform);
     }
 
-    fn update_collider(&mut self) {
-        self.collider.rotate(&self.direction);
-        self.collider.center = self.body.position.clone();
-    }
+    fn update_collider(&mut self) {}
 
     fn update_state(&mut self) {
         match self.state {
@@ -93,7 +80,6 @@ impl Player {
 
     pub fn render(&mut self, ctx: &mut Context) -> GameResult<()> {
         self.main_renderer.render(ctx, self);
-        // self.collider.draw(ctx);
 
         match self.state {
             PlayerState::Boosting => {
@@ -154,12 +140,16 @@ impl Renderable for Player {
     }
 }
 
-impl Collidable for Player {
-    fn respond(&mut self, mpv: Vector2<f32>) {
-        self.body.stop();
-        self.body.position += mpv;
-    }
-    fn collider(&self) -> &PolyCollider {
-        &self.collider
-    }
-}
+// impl Collidable for Player {
+//     fn process_overlap(&mut self, mpv: Vector2<f32>) {
+//     }
+//     fn process_collision(&mut self, other: &impl Collidable, N: &Vector2<f32>, t: f32){
+
+//     }
+//     fn collider(&self) -> PolyCollider {
+//         self.collider.clone()
+//     }
+//     fn velocity(&self) -> Vector2<f32> {
+//         self.body.velocity.clone()
+//     }
+// }

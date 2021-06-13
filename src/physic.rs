@@ -4,7 +4,7 @@ pub struct Body {
     pub position: Vector2<f32>,
     pub acceleration: Vector2<f32>,
     pub drag: f32,
-    velocity: Vector2<f32>,
+    pub velocity: Vector2<f32>,
 }
 
 pub struct Transform {
