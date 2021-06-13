@@ -1,4 +1,4 @@
-use ggez::graphics::{draw, Mesh, WHITE};
+use ggez::graphics::{draw, Mesh};
 use ggez::Context;
 
 use crate::render_system::Renderable;
@@ -16,7 +16,11 @@ impl LineMeshRenderer {
         draw(
             ctx,
             &self.mesh,
-            (renderable.position(), renderable.rotation(), WHITE),
+            (
+                renderable.position(),
+                renderable.rotation(),
+                renderable.color(),
+            ),
         )
         .unwrap();
     }

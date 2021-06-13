@@ -1,11 +1,13 @@
-use crate::render_system::line_mesh::LineMeshRenderer;
 use ggez::input::keyboard::{self, KeyCode};
-use ggez::nalgebra::{self as na, Point2, Vector2};
 use ggez::{Context, GameResult};
+use nalgebra as na;
+use ncollide2d::shape::Polyline;
 
+use crate::collision_system::Collidable;
 use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
 use crate::physic;
+use crate::render_system::line_mesh::LineMeshRenderer;
 use crate::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 800.0;
@@ -29,9 +31,9 @@ pub struct Player {
 
 impl Player {
     pub fn new(ctx: &mut Context) -> Self {
-        let transform = physic::Transform::new(Point2::new(0.0, 0.0), 0.0);
+        let transform = physic::Transform::new(na::Point2::new(0.0, 0.0), 0.0);
         Player {
-            body: physic::Body::new(Vector2::new(300.0, 400.0), 0.99),
+            body: physic::Body::new(na::Vector2::new(300.0, 400.0), 0.99),
             transform,
             direction: na::Rotation2::new(0.0),
             state: PlayerState::Sliding,
@@ -51,7 +53,7 @@ impl Player {
         self.update_state();
 
         self.body.animate(dt);
-        self.transform.position = Point2::new(self.body.position.x, self.body.position.y);
+        self.transform.position = na::Point2::new(self.body.position.x, self.body.position.y);
 
         self.update_collider();
         self.update_boost();
@@ -127,29 +129,37 @@ impl Player {
         } else if keyboard::is_key_pressed(ctx, KeyCode::S) {
             movement = PLAYER_ACC;
         }
-        self.body.acceleration = self.direction * Vector2::new(0.0, movement);
+        self.body.acceleration = self.direction * na::Vector2::new(0.0, movement);
     }
 }
 
 impl Renderable for Player {
-    fn position(&self) -> Point2<f32> {
-        self.transform.position
+    fn position(&self) -> ggez::nalgebra::Point2<f32> {
+        ggez::nalgebra::Point2::new(self.transform.position.x, self.transform.position.y)
     }
     fn rotation(&self) -> f32 {
         self.transform.rotation
     }
+    fn color(&self) -> ggez::graphics::Color {
+        ggez::graphics::WHITE
+    }
 }
 
-// impl Collidable for Player {
-//     fn process_overlap(&mut self, mpv: Vector2<f32>) {
-//     }
-//     fn process_collision(&mut self, other: &impl Collidable, N: &Vector2<f32>, t: f32){
-
-//     }
-//     fn collider(&self) -> PolyCollider {
-//         self.collider.clone()
-//     }
-//     fn velocity(&self) -> Vector2<f32> {
-//         self.body.velocity.clone()
-//     }
-// }
+impl Collidable for Player {
+    fn process_overlap(&mut self, _mpv: na::Vector2<f32>) {}
+    fn process_collision(&mut self, _other: &impl Collidable, _n: &na::Vector2<f32>, _t: f32) {}
+    fn position(&self) -> na::Isometry2<f32> {
+        na::Isometry2::new(self.body.position, self.rotation())
+    }
+    fn collider(&self) -> Polyline<f32> {
+        let mut points: Vec<na::Point2<f32>> = PLAYER_POINTS
+            .iter()
+            .map(|p| na::Point2::new(p.0, p.1))
+            .collect();
+        points.push(na::Point2::new(PLAYER_POINTS[0].0, PLAYER_POINTS[0].1));
+        Polyline::new(points, Option::None)
+    }
+    fn velocity(&self) -> na::Vector2<f32> {
+        self.body.velocity
+    }
+}

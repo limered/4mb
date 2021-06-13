@@ -1,4 +1,4 @@
-use ggez::nalgebra::{Point2, Vector2};
+use nalgebra::{Point2, Vector2};
 
 pub struct Body {
     pub position: Vector2<f32>,

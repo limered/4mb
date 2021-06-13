@@ -64,12 +64,27 @@ impl Renderable for Destroyable {
     }
 }
 
-//     }
-
-//     fn collider(&self) -> PolyCollider {
-//         self.collider.clone()
-//     }
-//     fn velocity(&self) -> Vector2<f32> {
-//         self.body.velocity.clone()
-//     }
-// }
+impl Collidable for Destroyable {
+    fn process_overlap(&mut self, _mpv: Vector2<f32>) {
+        self.render_color = ggez::graphics::Color::new(0.0, 1.0, 0.0, 1.0);
+    }
+    fn process_collision(&mut self, _other: &impl Collidable, _n: &Vector2<f32>, _t: f32) {
+        self.render_color = ggez::graphics::Color::new(1.0, 0.0, 0.0, 1.0);
+    }
+    fn position(&self) -> Isometry2<f32> {
+        Isometry2::new(self.body.position, self.rotation())
+    }
+    fn collider(&self) -> Polyline<f32> {
+        let points = vec![
+            Point2::new(14.0, 14.0),
+            Point2::new(14.0, -14.0),
+            Point2::new(-14.0, -14.0),
+            Point2::new(-14.0, 14.0),
+            Point2::new(14.0, 14.0),
+        ];
+        Polyline::new(points, Option::None)
+    }
+    fn velocity(&self) -> Vector2<f32> {
+        self.body.velocity
+    }
+}

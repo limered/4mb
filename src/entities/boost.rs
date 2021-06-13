@@ -1,5 +1,5 @@
-use ggez::nalgebra::Point2;
 use ggez::Context;
+use nalgebra::Point2;
 use rand::Rng;
 
 use crate::entities::player_mesh_creator;
@@ -30,18 +30,21 @@ impl Boost {
 }
 
 impl Renderable for Boost {
-    fn position(&self) -> Point2<f32> {
+    fn position(&self) -> ggez::nalgebra::Point2<f32> {
         let mut rng = rand::thread_rng();
         let x_rng: f32 = rng.gen();
         let x_rng = (x_rng * 6.0) - 3.0;
         let y_rng: f32 = rng.gen();
         let y_rng = (y_rng * 6.0) - 3.0;
-        Point2::new(
+        ggez::nalgebra::Point2::new(
             self.transform.position.x + x_rng,
             self.transform.position.y + y_rng,
         )
     }
     fn rotation(&self) -> f32 {
         self.transform.rotation
+    }
+    fn color(&self) -> ggez::graphics::Color {
+        ggez::graphics::WHITE
     }
 }

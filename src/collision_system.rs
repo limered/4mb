@@ -1,6 +1,6 @@
 use na::{Isometry2, Vector2};
 use nalgebra as na;
-use ncollide2d::query::{self, DefaultTOIDispatcher};
+use ncollide2d::query::{self, DefaultTOIDispatcher, TOI};
 use ncollide2d::shape::Polyline;
 
 pub trait Collidable {
@@ -11,8 +11,8 @@ pub trait Collidable {
     fn velocity(&self) -> Vector2<f32>;
 }
 
-pub fn _collide(first: &mut impl Collidable, second: &mut impl Collidable) {
-    let _toi = query::time_of_impact(
+pub fn collide(first: &mut impl Collidable, second: &mut impl Collidable) {
+    let toi = query::time_of_impact(
         &DefaultTOIDispatcher,
         &first.position(),
         &first.velocity(),
@@ -20,7 +20,25 @@ pub fn _collide(first: &mut impl Collidable, second: &mut impl Collidable) {
         &second.position(),
         &second.velocity(),
         &second.collider(),
-        100.0,
-        100.0,
-    );
+        10.0,
+        10.0,
+    )
+    .unwrap();
+
+    match toi {
+        Some(x) => {
+            resolve_collision(x, first, second);
+        }
+        _ => {}
+    }
+}
+
+fn resolve_collision(toi: TOI<f32>, first: &mut impl Collidable, second: &mut impl Collidable) {
+    if toi.toi == 0.0 {
+        //Resolve for Collision
+        second.process_collision(first, &Vector2::zeros(), 0.0);
+    } else {
+        //Resolve for Impact
+        second.process_overlap(Vector2::zeros());
+    }
 }

@@ -1,7 +1,7 @@
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
-use ggez::nalgebra::Vector2;
 use ggez::{graphics, Context, ContextBuilder, GameResult};
+use nalgebra::Vector2;
 
 use crate::entities::player;
 
@@ -52,7 +52,7 @@ impl EventHandler for MyGame {
         let dt = ggez::timer::delta(ctx).as_secs_f32();
 
         self.player.update(dt, &ctx);
-        // collision_system::collide(&mut self.player, &mut self.element);
+        collision_system::collide(&mut self.player, &mut self.element);
 
         Ok(())
     }
@@ -63,7 +63,7 @@ impl EventHandler for MyGame {
         self.player.render(ctx).expect("Error during Player Render");
         self.element
             .render(ctx)
-            .expect("Error during Element Render");
+            .expect("Error during Collidable render");
 
         graphics::present(ctx)
     }
