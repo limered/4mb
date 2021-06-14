@@ -20,13 +20,14 @@ pub fn collide(first: &mut impl Collidable, second: &mut impl Collidable) {
         &second.position(),
         &second.velocity(),
         &second.collider(),
-        10.0,
-        10.0,
+        1.0,
+        1.0,
     )
     .unwrap();
 
     match toi {
         Some(x) => {
+            println!("{:?}", x.toi);
             resolve_collision(x, first, second);
         }
         _ => {}
