@@ -1,28 +1,23 @@
-use crate::PhysicsSystem;
+use rapier2d::prelude::*;
 use ggez::Context;
-use nalgebra::Point2;
 use rand::Rng;
 
+use crate::PhysicsSystem;
 use crate::entities::player_mesh_creator;
-use crate::physic::Transform;
 use crate::render_system::line_mesh::LineMeshRenderer;
 use crate::render_system::Renderable;
 
 pub struct Boost {
-    transform: Transform,
     renderer: LineMeshRenderer,
+    player_body_handle: RigidBodyHandle,
 }
 
 impl Boost {
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &mut Context, player_body_handle: RigidBodyHandle) -> Self {
         Boost {
-            transform: Transform::new(Point2::new(0.0, 0.0), 0.0),
             renderer: LineMeshRenderer::new(player_mesh_creator::create_player_boost_mesh(ctx)),
+            player_body_handle,
         }
-    }
-    pub fn update(&mut self, transform: &Transform) {
-        self.transform.position = transform.position;
-        self.transform.rotation = transform.rotation;
     }
 
     pub fn render(&self, ctx: &mut Context, physics: &mut PhysicsSystem) {
@@ -32,18 +27,20 @@ impl Boost {
 
 impl Renderable for Boost {
     fn position(&self, physics: &mut PhysicsSystem) -> ggez::nalgebra::Point2<f32> {
+        let body = physics.rigid_body_set.get(self.player_body_handle).unwrap();
         let mut rng = rand::thread_rng();
         let x_rng: f32 = rng.gen();
         let x_rng = (x_rng * 6.0) - 3.0;
         let y_rng: f32 = rng.gen();
         let y_rng = (y_rng * 6.0) - 3.0;
         ggez::nalgebra::Point2::new(
-            self.transform.position.x + x_rng,
-            self.transform.position.y + y_rng,
+            body.translation().x + x_rng,
+            body.translation().y + y_rng,
         )
     }
     fn rotation(&self, physics: &PhysicsSystem) -> f32 {
-        self.transform.rotation
+        let body = physics.rigid_body_set.get(self.player_body_handle).unwrap();
+        body.rotation().angle()
     }
     fn color(&self) -> ggez::graphics::Color {
         ggez::graphics::WHITE

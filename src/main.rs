@@ -6,10 +6,8 @@ use nalgebra::Vector2;
 use crate::entities::player;
 use crate::systems::physic_system::PhysicsSystem;
 
-mod collision_system;
 mod destroyable;
 mod entities;
-mod physic;
 mod render_system;
 mod systems;
 
@@ -62,8 +60,6 @@ impl EventHandler for MyGame {
         }
 
         self.physic_system.update();
-
-        // collision_system::collide(&mut self.player, &mut self.element);
 
         Ok(())
     }
