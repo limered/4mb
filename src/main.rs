@@ -2,12 +2,10 @@ use crate::systems::enemy_system::EnemySystem;
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
-use nalgebra::Vector2;
 
 use crate::entities::player;
 use crate::systems::physic_system::PhysicsSystem;
 
-mod destroyable;
 mod entities;
 mod render_system;
 mod systems;
@@ -36,7 +34,6 @@ fn main() {
 
 pub struct MyGame {
     pub player: Option<player::Player>,
-    pub element: destroyable::Destroyable,
     pub physic_system: PhysicsSystem,
     pub enemy_system: EnemySystem,
 }
@@ -45,7 +42,6 @@ impl MyGame {
     pub fn new(ctx: &mut Context) -> MyGame {
         let mut game = MyGame {
             player: Option::None,
-            element: destroyable::Destroyable::new(Vector2::new(600.0, 200.0), ctx),
             physic_system: PhysicsSystem::new(),
             enemy_system: EnemySystem::new(),
         };
