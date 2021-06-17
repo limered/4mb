@@ -4,12 +4,14 @@ use ggez::{graphics, Context, ContextBuilder, GameResult};
 use nalgebra::Vector2;
 
 use crate::entities::player;
+use crate::systems::physic_system::PhysicsSystem;
 
 mod collision_system;
 mod destroyable;
 mod entities;
 mod physic;
 mod render_system;
+mod systems;
 
 fn main() {
     let window_setup = WindowSetup {
@@ -33,17 +35,21 @@ fn main() {
     }
 }
 
-struct MyGame {
-    pub player: player::Player,
+pub struct MyGame {
+    pub player: Option<player::Player>,
     pub element: destroyable::Destroyable,
+    pub physic_system: PhysicsSystem,
 }
 
 impl MyGame {
     pub fn new(ctx: &mut Context) -> MyGame {
-        MyGame {
-            player: player::Player::new(ctx),
+        let mut game = MyGame {
+            player: Option::None,
             element: destroyable::Destroyable::new(Vector2::new(600.0, 200.0), ctx),
-        }
+            physic_system: PhysicsSystem::new(),
+        };
+        game.player = Option::Some(player::Player::new(ctx, &mut game));
+        game
     }
 }
 
@@ -51,8 +57,13 @@ impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let dt = ggez::timer::delta(ctx).as_secs_f32();
 
-        self.player.update(dt, &ctx);
-        collision_system::collide(&mut self.player, &mut self.element);
+        if let Some(player) = &mut self.player {
+            player.update(dt, &ctx, &mut self.physic_system);
+        }
+
+        self.physic_system.update();
+
+        // collision_system::collide(&mut self.player, &mut self.element);
 
         Ok(())
     }
@@ -60,9 +71,14 @@ impl EventHandler for MyGame {
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, graphics::BLACK);
 
-        self.player.render(ctx).expect("Error during Player Render");
+        if let Some(player) = &mut self.player {
+            player
+                .render(ctx, &mut self.physic_system)
+                .expect("Error during Player Render");
+        }
+
         self.element
-            .render(ctx)
+            .render(ctx, &mut self.physic_system)
             .expect("Error during Collidable render");
 
         graphics::present(ctx)

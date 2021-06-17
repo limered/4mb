@@ -1,3 +1,4 @@
+use crate::PhysicsSystem;
 use ggez::graphics::{draw, Mesh};
 use ggez::Context;
 
@@ -12,13 +13,18 @@ impl LineMeshRenderer {
         LineMeshRenderer { mesh }
     }
 
-    pub fn render(&self, ctx: &mut Context, renderable: &impl Renderable) {
+    pub fn render(
+        &self,
+        ctx: &mut Context,
+        renderable: &impl Renderable,
+        physics: &mut PhysicsSystem,
+    ) {
         draw(
             ctx,
             &self.mesh,
             (
-                renderable.position(),
-                renderable.rotation(),
+                renderable.position(physics),
+                renderable.rotation(physics),
                 renderable.color(),
             ),
         )

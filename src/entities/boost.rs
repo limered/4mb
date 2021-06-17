@@ -1,3 +1,4 @@
+use crate::PhysicsSystem;
 use ggez::Context;
 use nalgebra::Point2;
 use rand::Rng;
@@ -24,13 +25,13 @@ impl Boost {
         self.transform.rotation = transform.rotation;
     }
 
-    pub fn render(&self, ctx: &mut Context) {
-        self.renderer.render(ctx, self);
+    pub fn render(&self, ctx: &mut Context, physics: &mut PhysicsSystem) {
+        self.renderer.render(ctx, self, physics);
     }
 }
 
 impl Renderable for Boost {
-    fn position(&self) -> ggez::nalgebra::Point2<f32> {
+    fn position(&self, physics: &mut PhysicsSystem) -> ggez::nalgebra::Point2<f32> {
         let mut rng = rand::thread_rng();
         let x_rng: f32 = rng.gen();
         let x_rng = (x_rng * 6.0) - 3.0;
@@ -41,7 +42,7 @@ impl Renderable for Boost {
             self.transform.position.y + y_rng,
         )
     }
-    fn rotation(&self) -> f32 {
+    fn rotation(&self, physics: &PhysicsSystem) -> f32 {
         self.transform.rotation
     }
     fn color(&self) -> ggez::graphics::Color {

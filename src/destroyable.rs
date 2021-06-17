@@ -1,3 +1,4 @@
+use crate::PhysicsSystem;
 use ggez::{graphics, Context, GameResult};
 use nalgebra::{Isometry2, Point2, Vector2};
 use ncollide2d::shape::Polyline;
@@ -45,18 +46,18 @@ impl Destroyable {
         }
     }
 
-    pub fn render(&mut self, ctx: &mut Context) -> GameResult<()> {
-        self.renderer.render(ctx, self);
+    pub fn render(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) -> GameResult<()> {
+        self.renderer.render(ctx, self, physics);
         self.render_color = ggez::graphics::WHITE;
         Ok(())
     }
 }
 
 impl Renderable for Destroyable {
-    fn position(&self) -> ggez::nalgebra::Point2<f32> {
+    fn position(&self, physics: &mut PhysicsSystem) -> ggez::nalgebra::Point2<f32> {
         ggez::nalgebra::Point2::new(self.transform.position.x, self.transform.position.y)
     }
-    fn rotation(&self) -> f32 {
+    fn rotation(&self, physics: &PhysicsSystem) -> f32 {
         self.transform.rotation
     }
     fn color(&self) -> ggez::graphics::Color {
@@ -72,7 +73,7 @@ impl Collidable for Destroyable {
         self.render_color = ggez::graphics::Color::new(1.0, 0.0, 0.0, 1.0);
     }
     fn position(&self) -> Isometry2<f32> {
-        Isometry2::new(self.body.position, self.rotation())
+        Isometry2::new(self.body.position, 0.0)
     }
     fn collider(&self) -> Polyline<f32> {
         let points = vec![
