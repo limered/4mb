@@ -1,3 +1,4 @@
+use crate::systems::enemy_system::EnemySystem;
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
@@ -37,6 +38,7 @@ pub struct MyGame {
     pub player: Option<player::Player>,
     pub element: destroyable::Destroyable,
     pub physic_system: PhysicsSystem,
+    pub enemy_system: EnemySystem,
 }
 
 impl MyGame {
@@ -45,8 +47,10 @@ impl MyGame {
             player: Option::None,
             element: destroyable::Destroyable::new(Vector2::new(600.0, 200.0), ctx),
             physic_system: PhysicsSystem::new(),
+            enemy_system: EnemySystem::new(),
         };
         game.player = Option::Some(player::Player::new(ctx, &mut game));
+        game.enemy_system.make_enemy(ctx, &mut game.physic_system);
         game
     }
 }
@@ -59,8 +63,9 @@ impl EventHandler for MyGame {
             player.update(dt, &ctx, &mut self.physic_system);
         }
 
-        self.physic_system.update();
+        self.enemy_system.update(dt, ctx, &mut self.physic_system);
 
+        self.physic_system.update();
         Ok(())
     }
 
@@ -73,10 +78,9 @@ impl EventHandler for MyGame {
                 .expect("Error during Player Render");
         }
 
-        self.element
-            .render(ctx, &mut self.physic_system)
-            .expect("Error during Collidable render");
+        self.enemy_system.render(ctx, &mut self.physic_system);
 
+        ggez::timer::sleep(std::time::Duration::from_secs(0));
         graphics::present(ctx)
     }
 }

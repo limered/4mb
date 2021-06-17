@@ -1,11 +1,11 @@
-use rapier2d::prelude::*;
 use ggez::Context;
 use rand::Rng;
+use rapier2d::prelude::*;
 
-use crate::PhysicsSystem;
 use crate::entities::player_mesh_creator;
 use crate::render_system::line_mesh::LineMeshRenderer;
 use crate::render_system::Renderable;
+use crate::PhysicsSystem;
 
 pub struct Boost {
     renderer: LineMeshRenderer,
@@ -33,10 +33,7 @@ impl Renderable for Boost {
         let x_rng = (x_rng * 6.0) - 3.0;
         let y_rng: f32 = rng.gen();
         let y_rng = (y_rng * 6.0) - 3.0;
-        ggez::nalgebra::Point2::new(
-            body.translation().x + x_rng,
-            body.translation().y + y_rng,
-        )
+        ggez::nalgebra::Point2::new(body.translation().x + x_rng, body.translation().y + y_rng)
     }
     fn rotation(&self, physics: &PhysicsSystem) -> f32 {
         let body = physics.rigid_body_set.get(self.player_body_handle).unwrap();

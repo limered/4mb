@@ -44,7 +44,7 @@ impl Destroyable {
 
 impl Renderable for Destroyable {
     fn position(&self, _physics: &mut PhysicsSystem) -> ggez::nalgebra::Point2<f32> {
-        ggez::nalgebra::Point2::new(0.0,0.0)
+        ggez::nalgebra::Point2::new(0.0, 0.0)
     }
     fn rotation(&self, _physics: &PhysicsSystem) -> f32 {
         0.0
