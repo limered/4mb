@@ -3,8 +3,8 @@ use rand::Rng;
 use rapier2d::prelude::*;
 
 use crate::entities::player_mesh_creator;
-use crate::render_system::line_mesh::LineMeshRenderer;
-use crate::render_system::Renderable;
+use crate::systems::render_system::line_mesh::LineMeshRenderer;
+use crate::systems::render_system::Renderable;
 use crate::PhysicsSystem;
 
 pub struct Boost {

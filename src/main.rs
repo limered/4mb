@@ -1,13 +1,12 @@
-use crate::systems::enemy_system::EnemySystem;
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
 use crate::entities::player;
+use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
 
 mod entities;
-mod render_system;
 mod systems;
 
 fn main() {

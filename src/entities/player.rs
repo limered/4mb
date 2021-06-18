@@ -9,8 +9,8 @@ use nalgebra as na;
 
 use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
-use crate::render_system::line_mesh::LineMeshRenderer;
-use crate::render_system::Renderable;
+use crate::systems::render_system::line_mesh::LineMeshRenderer;
+use crate::systems::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 800.0;
 const PLAYER_TURN: f32 = 4.5;

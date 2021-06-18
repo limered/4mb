@@ -2,7 +2,7 @@ use crate::PhysicsSystem;
 use ggez::graphics::{draw, Mesh};
 use ggez::Context;
 
-use crate::render_system::Renderable;
+use crate::systems::render_system::Renderable;
 
 pub struct LineMeshRenderer {
     mesh: Mesh,
