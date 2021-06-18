@@ -46,13 +46,13 @@ pub struct Enemy {
 
 fn random_vec(x: (f32, f32), y: (f32, f32)) -> ggez::nalgebra::Point2<f32> {
     let mut rng = rand::thread_rng();
-    let x: f32 = (rng.gen::<f32>() * x.1) - x.0;
-    let y: f32 = (rng.gen::<f32>() * y.1) - y.0;
+    let x: f32 = (rng.gen::<f32>() * x.1) + x.0;
+    let y: f32 = (rng.gen::<f32>() * y.1) + y.0;
     ggez::nalgebra::Point2::new(x, y)
 }
 
-const MAX_SIZE: f32 = 20.0;
-const MIN_SIZE: f32 = 1.0;
+const MAX_SIZE: f32 = 10.0;
+const MIN_SIZE: f32 = 10.0;
 
 fn create_mesh(ctx: &mut Context) -> ggez::graphics::Mesh {
     let p1 = random_vec((MIN_SIZE, MAX_SIZE), (MIN_SIZE, MAX_SIZE));
