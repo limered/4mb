@@ -3,6 +3,7 @@ use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
 use crate::entities::player;
+use crate::entities::world::World;
 use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
 
@@ -35,6 +36,7 @@ pub struct MyGame {
     pub player: Option<player::Player>,
     pub physic_system: PhysicsSystem,
     pub enemy_system: EnemySystem,
+    pub world: World,
     accumulator: f32,
 }
 
@@ -44,6 +46,7 @@ impl MyGame {
             player: Option::None,
             physic_system: PhysicsSystem::new(),
             enemy_system: EnemySystem::new(),
+            world: World::new(ctx),
             accumulator: 0.0,
         };
         game.player = Option::Some(player::Player::new(ctx, &mut game));
@@ -78,6 +81,7 @@ impl EventHandler for MyGame {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, graphics::BLACK);
+        self.world.render(ctx);
 
         if let Some(player) = &mut self.player {
             player
