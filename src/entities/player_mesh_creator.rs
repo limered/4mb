@@ -1,9 +1,9 @@
-use ggez::graphics::{Mesh, MeshBuilder, Rect, WHITE, DrawMode};
+use ggez::graphics::{DrawMode, Mesh, MeshBuilder, Rect, WHITE};
 use ggez::nalgebra::Point2;
 use ggez::Context;
 use rapier2d::prelude::*;
 
-pub fn create_player_mesh(player_points: &[(f32, f32); 3], ctx: &mut Context) -> Mesh {
+pub fn create_player_mesh(ctx: &mut Context) -> Mesh {
     let main_reckt = Rect::new(-4.0, -20.0, 8.0, 30.0);
     let left_reckt = Rect::new(-12.0, 0.0, 8.0, 10.0);
     let right_reckt = Rect::new(4.0, 0.0, 8.0, 10.0);
@@ -41,7 +41,10 @@ pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
 
 pub fn build_player_collider() -> Vec<Collider> {
     vec![
-        ColliderBuilder::cuboid(4.0, 15.0).density(0.0).translation(Vector::new(0.0, 0.0)).build(),
+        ColliderBuilder::cuboid(4.0, 15.0)
+            .density(0.0)
+            .translation(Vector::new(0.0, 0.0))
+            .build(),
         ColliderBuilder::cuboid(4.0, 5.0)
             .density(0.0)
             .translation(Vector::new(-4.0, 15.0))
@@ -52,4 +55,3 @@ pub fn build_player_collider() -> Vec<Collider> {
             .build(),
     ]
 }
-

@@ -15,7 +15,6 @@ use crate::systems::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 800.0;
 const PLAYER_TURN: f32 = 60.0;
-const PLAYER_POINTS: [(f32, f32); 3] = [(15.0, 15.0), (0.0, -15.0), (-15.0, 15.0)];
 
 #[derive(Debug)]
 enum PlayerState {
@@ -57,10 +56,7 @@ impl Player {
         }
         Player {
             state: PlayerState::Sliding,
-            main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(
-                &PLAYER_POINTS,
-                ctx,
-            )),
+            main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(ctx)),
             boost: Boost::new(ctx, body_handle),
             body_handle,
             _collider_handles: collider_handles,
