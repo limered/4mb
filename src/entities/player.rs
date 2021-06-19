@@ -48,7 +48,7 @@ impl Player {
         let body_handle = game.physic_system.rigid_body_set.insert(rb);
         let mut collider_handles: Vec<ColliderHandle> = Vec::new();
         let mut colliders = build_player_collider();
-        for _i in 0..2 {
+        for _i in 0..colliders.len() {
             collider_handles.push(game.physic_system.collider_set.insert_with_parent(
                 colliders.pop().unwrap(),
                 body_handle,

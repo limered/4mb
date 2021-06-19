@@ -42,7 +42,7 @@ pub struct Enemy {
     _movement_direction: na::Vector2<f32>,
     main_renderer: LineMeshRenderer,
     body_handle: RigidBodyHandle,
-    collider_handle: ColliderHandle,
+    _collider_handle: ColliderHandle,
 }
 
 fn random_vec(x: (f32, f32), y: (f32, f32)) -> nalgebra::Point2<f32> {
@@ -68,7 +68,7 @@ fn create_mesh_points() -> [nalgebra::Point2<f32>; 5] {
 }
 
 fn create_mesh(ctx: &mut Context, points: [nalgebra::Point2<f32>; 5]) -> ggez::graphics::Mesh {
-    let mut mesh_points: Vec<ggez::nalgebra::Point2<f32>> = points
+    let mesh_points: Vec<ggez::nalgebra::Point2<f32>> = points
         .iter()
         .map(|p| ggez::nalgebra::Point2::new(p.x, p.y))
         .collect();
@@ -103,7 +103,7 @@ impl Enemy {
         );
         Enemy {
             body_handle,
-            collider_handle,
+            _collider_handle: collider_handle,
             _movement_direction: na::Vector2::new(400.0, 300.0) - na::Vector2::new(200.0, 100.0),
             main_renderer: LineMeshRenderer::new(create_mesh(ctx, points)),
         }

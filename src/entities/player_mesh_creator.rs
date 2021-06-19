@@ -1,17 +1,17 @@
-use ggez::graphics::{Mesh, MeshBuilder, WHITE};
+use ggez::graphics::{Mesh, MeshBuilder, Rect, WHITE, DrawMode};
 use ggez::nalgebra::Point2;
 use ggez::Context;
 use rapier2d::prelude::*;
 
 pub fn create_player_mesh(player_points: &[(f32, f32); 3], ctx: &mut Context) -> Mesh {
-    let mesh_points: [Point2<f32>; 3] = [
-        Point2::new(player_points[0].0, player_points[0].1),
-        Point2::new(player_points[1].0, player_points[1].1),
-        Point2::new(player_points[2].0, player_points[2].1),
-    ];
+    let main_reckt = Rect::new(-4.0, -20.0, 8.0, 30.0);
+    let left_reckt = Rect::new(-12.0, 0.0, 8.0, 10.0);
+    let right_reckt = Rect::new(4.0, 0.0, 8.0, 10.0);
+
     MeshBuilder::new()
-        .line(&mesh_points, 2.0, WHITE)
-        .unwrap()
+        .rectangle(DrawMode::stroke(2.0), main_reckt, WHITE)
+        .rectangle(DrawMode::fill(), left_reckt, WHITE)
+        .rectangle(DrawMode::fill(), right_reckt, WHITE)
         .build(ctx)
         .expect("Could not build PLayer Mesh")
 }
@@ -41,14 +41,15 @@ pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
 
 pub fn build_player_collider() -> Vec<Collider> {
     vec![
-        ColliderBuilder::cuboid(5.0, 20.0).density(0.0).build(),
-        ColliderBuilder::cuboid(5.0, 10.0)
+        ColliderBuilder::cuboid(4.0, 15.0).density(0.0).translation(Vector::new(0.0, 0.0)).build(),
+        ColliderBuilder::cuboid(4.0, 5.0)
             .density(0.0)
-            .translation(Vector::new(-5.0, -5.0))
+            .translation(Vector::new(-4.0, 15.0))
             .build(),
-        ColliderBuilder::cuboid(5.0, 10.0)
+        ColliderBuilder::cuboid(4.0, 5.0)
             .density(0.0)
-            .translation(Vector::new(5.0, -5.0))
+            .translation(Vector::new(4.0, 15.0))
             .build(),
     ]
 }
+
