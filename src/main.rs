@@ -35,6 +35,7 @@ pub struct MyGame {
     pub player: Option<player::Player>,
     pub physic_system: PhysicsSystem,
     pub enemy_system: EnemySystem,
+    accumulator: f32,
 }
 
 impl MyGame {
@@ -43,6 +44,7 @@ impl MyGame {
             player: Option::None,
             physic_system: PhysicsSystem::new(),
             enemy_system: EnemySystem::new(),
+            accumulator: 0.0,
         };
         game.player = Option::Some(player::Player::new(ctx, &mut game));
         game.enemy_system.make_enemy(ctx, &mut game.physic_system);
@@ -52,15 +54,25 @@ impl MyGame {
 
 impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        let dt = ggez::timer::delta(ctx).as_secs_f32();
-
-        if let Some(player) = &mut self.player {
-            player.update(dt, &ctx, &mut self.physic_system);
+        let dt = systems::physic_system::DT;
+        let mut frame_time = ggez::timer::delta(ctx).as_secs_f32();
+        if frame_time > 0.25 {
+            frame_time = 0.25;
         }
 
-        self.enemy_system.update(dt, ctx, &mut self.physic_system);
+        self.accumulator += frame_time;
 
-        self.physic_system.update();
+        while self.accumulator >= dt {
+            if let Some(player) = &mut self.player {
+                player.update(&ctx, &mut self.physic_system);
+            }
+
+            self.enemy_system.update(dt, ctx, &mut self.physic_system);
+
+            self.physic_system.update();
+            self.accumulator -= dt;
+        }
+
         Ok(())
     }
 

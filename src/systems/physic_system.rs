@@ -1,6 +1,8 @@
 use nalgebra::Vector2;
 use rapier2d::prelude::*;
 
+pub const DT: f32 = 1.0 / 60.0;
+
 pub struct PhysicsSystem {
     pub rigid_body_set: RigidBodySet,
     pub collider_set: ColliderSet,
@@ -23,7 +25,10 @@ impl PhysicsSystem {
             collider_set: ColliderSet::new(),
             pipeline: PhysicsPipeline::new(),
             gravity: vector![0.0, 0.0],
-            integration_parameters: IntegrationParameters::default(),
+            integration_parameters: IntegrationParameters {
+                dt: DT,
+                ..Default::default()
+            },
             island_manager: IslandManager::new(),
             broad_phase: BroadPhase::new(),
             narrow_phase: NarrowPhase::new(),

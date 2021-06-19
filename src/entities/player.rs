@@ -1,3 +1,4 @@
+use crate::entities::player_mesh_creator::build_player_collider;
 use crate::MyGame;
 use crate::PhysicsSystem;
 use rapier2d::dynamics::RigidBodyHandle;
@@ -13,7 +14,7 @@ use crate::systems::render_system::line_mesh::LineMeshRenderer;
 use crate::systems::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 800.0;
-const PLAYER_TURN: f32 = 4.5;
+const PLAYER_TURN: f32 = 60.0;
 const PLAYER_POINTS: [(f32, f32); 3] = [(15.0, 15.0), (0.0, -15.0), (-15.0, 15.0)];
 
 #[derive(Debug)]
@@ -23,37 +24,52 @@ enum PlayerState {
 }
 
 pub struct Player {
-    direction: na::Rotation2<f32>,
     main_renderer: LineMeshRenderer,
     state: PlayerState,
     boost: Boost,
     body_handle: RigidBodyHandle,
+    _collider_handles: Vec<ColliderHandle>,
 }
+
+const MASS: f32 = 1.0;
 
 impl Player {
     pub fn new(ctx: &mut Context, game: &mut MyGame) -> Self {
         let rb = RigidBodyBuilder::new_dynamic()
             .translation(na::Vector2::new(300.0, 400.0))
-            .additional_mass(1.0)
-            .linear_damping(0.999)
+            .linear_damping(0.5)
+            .angular_damping(10.0)
+            .additional_mass(MASS)
+            .additional_principal_angular_inertia(MASS)
+            .dominance_group(10)
             .can_sleep(false)
+            .ccd_enabled(true)
             .build();
-        let handle = game.physic_system.rigid_body_set.insert(rb);
+        let body_handle = game.physic_system.rigid_body_set.insert(rb);
+        let mut collider_handles: Vec<ColliderHandle> = Vec::new();
+        let mut colliders = build_player_collider();
+        for _i in 0..2 {
+            collider_handles.push(game.physic_system.collider_set.insert_with_parent(
+                colliders.pop().unwrap(),
+                body_handle,
+                &mut game.physic_system.rigid_body_set,
+            ));
+        }
         Player {
-            direction: na::Rotation2::new(0.0),
             state: PlayerState::Sliding,
             main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(
                 &PLAYER_POINTS,
                 ctx,
             )),
-            boost: Boost::new(ctx, handle),
-            body_handle: handle,
+            boost: Boost::new(ctx, body_handle),
+            body_handle,
+            _collider_handles: collider_handles,
         }
     }
 
-    pub fn update(&mut self, dt: f32, ctx: &Context, physics: &mut PhysicsSystem) {
+    pub fn update(&mut self, ctx: &Context, physics: &mut PhysicsSystem) {
         self.control_movement(ctx, physics);
-        self.control_rotation(dt, ctx, physics);
+        self.control_rotation(ctx, physics);
     }
 
     pub fn render(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) -> GameResult<()> {
@@ -69,19 +85,20 @@ impl Player {
         Ok(())
     }
 
-    fn control_rotation(&mut self, dt: f32, ctx: &Context, physics: &mut PhysicsSystem) {
-        let mut r = na::Rotation2::new(0.0);
+    fn control_rotation(&mut self, ctx: &Context, physics: &mut PhysicsSystem) {
+        let dt = ggez::timer::delta(ctx).as_secs_f32();
+        let mut r = 0.0;
         if keyboard::is_key_pressed(ctx, KeyCode::D) {
-            r = na::Rotation2::new(PLAYER_TURN * dt);
+            r = PLAYER_TURN;
         } else if keyboard::is_key_pressed(ctx, KeyCode::A) {
-            r = na::Rotation2::new(-PLAYER_TURN * dt);
+            r = -PLAYER_TURN;
         }
         let body = physics.rigid_body_set.get_mut(self.body_handle).unwrap();
-        self.direction = r * self.direction;
-        body.set_rotation(self.direction.angle(), true)
+        body.apply_torque(r * dt * 60.0, true);
     }
 
     fn control_movement(&mut self, ctx: &Context, physics: &mut PhysicsSystem) {
+        let dt = ggez::timer::delta(ctx).as_secs_f32();
         let mut movement: f32 = 0.0;
         if keyboard::is_key_pressed(ctx, KeyCode::W) {
             movement = -PLAYER_ACC;
@@ -93,9 +110,9 @@ impl Player {
             self.state = PlayerState::Sliding;
         }
 
-        let force = self.direction * vector![0.0, movement];
         let body = physics.rigid_body_set.get_mut(self.body_handle).unwrap();
-        body.apply_force(force, true);
+        let force = body.rotation() * vector![0.0, movement];
+        body.apply_force(force * dt * 60.0, true);
     }
 }
 

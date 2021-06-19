@@ -1,6 +1,7 @@
 use ggez::graphics::{Mesh, MeshBuilder, WHITE};
 use ggez::nalgebra::Point2;
 use ggez::Context;
+use rapier2d::prelude::*;
 
 pub fn create_player_mesh(player_points: &[(f32, f32); 3], ctx: &mut Context) -> Mesh {
     let mesh_points: [Point2<f32>; 3] = [
@@ -36,4 +37,18 @@ pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
         .unwrap()
         .build(ctx)
         .expect("Could not create player boost mesh")
+}
+
+pub fn build_player_collider() -> Vec<Collider> {
+    vec![
+        ColliderBuilder::cuboid(5.0, 20.0).density(0.0).build(),
+        ColliderBuilder::cuboid(5.0, 10.0)
+            .density(0.0)
+            .translation(Vector::new(-5.0, -5.0))
+            .build(),
+        ColliderBuilder::cuboid(5.0, 10.0)
+            .density(0.0)
+            .translation(Vector::new(5.0, -5.0))
+            .build(),
+    ]
 }
