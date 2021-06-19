@@ -1,4 +1,5 @@
 use crate::entities::player_mesh_creator::build_player_collider;
+use crate::entities::world::BoundedByWorld;
 use crate::MyGame;
 use crate::PhysicsSystem;
 use rapier2d::dynamics::RigidBodyHandle;
@@ -123,5 +124,11 @@ impl Renderable for Player {
     }
     fn color(&self) -> ggez::graphics::Color {
         ggez::graphics::WHITE
+    }
+}
+
+impl BoundedByWorld for Player {
+    fn body_handle(&self) -> &RigidBodyHandle {
+        &self.body_handle
     }
 }

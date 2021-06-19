@@ -3,7 +3,7 @@ use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 
 use crate::entities::player;
-use crate::entities::world::World;
+use crate::entities::world::{BoundedByWorld, World};
 use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
 
@@ -68,6 +68,8 @@ impl EventHandler for MyGame {
         while self.accumulator >= dt {
             if let Some(player) = &mut self.player {
                 player.update(&ctx, &mut self.physic_system);
+                self.world
+                    .update(player.body_handle(), &mut self.physic_system);
             }
 
             self.enemy_system.update(dt, ctx, &mut self.physic_system);
