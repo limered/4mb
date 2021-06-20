@@ -66,6 +66,7 @@ impl Player {
         self.control_rotation(ctx, physics);
         self.render_info
             .update(self.position(physics), self.rotation(physics), self.color());
+        self.render_info.is_player = true;
         self.boost.update(physics);
         self.boost
             .set_visibility(self.state == PlayerState::Boosting);

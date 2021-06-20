@@ -1,7 +1,12 @@
+use crate::systems::render_system::camera::Camera;
 use crate::PhysicsSystem;
 use ggez::graphics::Color;
 use ggez::graphics::Mesh;
+use nalgebra::Isometry2;
+use nalgebra::Point2;
 use nalgebra::Vector2;
+
+pub mod camera;
 
 pub trait Renderable {
     fn position(&self, physics: &PhysicsSystem) -> Vector2<f32>;
@@ -13,6 +18,7 @@ pub trait Renderable {
 #[derive(PartialEq, Clone)]
 pub struct RenderInfo {
     pub is_visible: bool,
+    pub is_player: bool,
     mesh: Mesh,
     position: Vector2<f32>,
     position_last: Vector2<f32>,
@@ -31,6 +37,7 @@ impl RenderInfo {
             rotation: 0.0,
             rotation_last: 0.0,
             is_visible: true,
+            is_player: false,
         }
     }
 
@@ -44,12 +51,14 @@ impl RenderInfo {
 }
 
 pub struct RenderSystem {
+    camera: Camera,
     renderables: Vec<RenderInfo>,
 }
 
 impl RenderSystem {
     pub fn new() -> Self {
         RenderSystem {
+            camera: Camera::new(Isometry2::new(Vector2::new(0.0, 300.0), 0.0)),
             renderables: Vec::new(),
         }
     }
@@ -59,11 +68,15 @@ impl RenderSystem {
     }
     pub fn render(&mut self, ctx: &mut ggez::Context) {
         for info in &self.renderables {
+            if info.is_player {
+                self.camera.set_transform_position(info.position);
+            }
             if info.is_visible {
+                let pos = self.camera.modify(info.position);
                 ggez::graphics::draw(
                     ctx,
                     &info.mesh,
-                    (vec_to_point(info.position), info.rotation, info.color),
+                    (point_to_point(pos), info.rotation, info.color),
                 )
                 .unwrap();
             }
@@ -72,6 +85,6 @@ impl RenderSystem {
     }
 }
 
-fn vec_to_point(vec: Vector2<f32>) -> ggez::nalgebra::Point2<f32> {
-    ggez::nalgebra::Point2::new(vec.x, vec.y)
+fn point_to_point(p: Point2<f32>) -> ggez::nalgebra::Point2<f32> {
+    ggez::nalgebra::Point2::new(p.x, p.y)
 }
