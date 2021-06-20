@@ -10,8 +10,7 @@ pub trait Renderable {
     fn info_as_ref(&self) -> RenderInfo;
 }
 
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(PartialEq, Clone)]
 pub struct RenderInfo {
     pub is_visible: bool,
     mesh: Mesh,
@@ -55,11 +54,11 @@ impl RenderSystem {
         }
     }
 
-    pub fn add_to_render(&mut self,  info: RenderInfo) {
+    pub fn add_to_render(&mut self, info: RenderInfo) {
         self.renderables.push(info);
     }
-    pub fn render(&mut self, ctx: &mut ggez::Context){
-        for info in &self.renderables{
+    pub fn render(&mut self, ctx: &mut ggez::Context) {
+        for info in &self.renderables {
             if info.is_visible {
                 ggez::graphics::draw(
                     ctx,

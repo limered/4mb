@@ -7,14 +7,14 @@ use ggez::input::keyboard::{self, KeyCode};
 use ggez::Context;
 use nalgebra as na;
 
+use crate::entities::boost::Boost;
+use crate::entities::player_mesh_creator;
 use crate::entities::player_mesh_creator::build_player_collider;
 use crate::entities::world::BoundedByWorld;
 use crate::systems::render_system::RenderInfo;
+use crate::systems::render_system::Renderable;
 use crate::MyGame;
 use crate::PhysicsSystem;
-use crate::entities::boost::Boost;
-use crate::entities::player_mesh_creator;
-use crate::systems::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 60000.0;
 const PLAYER_TURN: f32 = 300000.0;
