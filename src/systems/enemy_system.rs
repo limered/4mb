@@ -12,6 +12,8 @@ use crate::PhysicsSystem;
 
 const SPAWN_RANGE: (f32, f32) = (300.0, 500.0);
 const SPAWN_TIME: f32 = 1.0;
+const MIDDLE: (f32, f32) = (400.0, 300.0);
+
 
 pub struct EnemySystem {
     pub enemies: Vec<Enemy>,
@@ -37,7 +39,7 @@ impl EnemySystem {
     }
 
     pub fn make_enemy(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) {
-        let position = Self::calculate_spawn_position() + Vector2::new(400.0, 300.0);
+        let position = Self::calculate_spawn_position() + Vector2::new(MIDDLE.0, MIDDLE.1);
         let enemy = Enemy::new(ctx, position, physics);
         self.enemies.push(enemy);
     }
@@ -102,7 +104,7 @@ fn create_mesh(ctx: &mut Context, points: [nalgebra::Point2<f32>; 5]) -> ggez::g
         .expect("Could not build Player Mesh")
 }
 
-const MASS: f32 = 1.0;
+const SPEED: f32 = 90.0;
 
 impl Enemy {
     pub fn new(
@@ -113,15 +115,13 @@ impl Enemy {
         let points = create_mesh_points();
         let rb = RigidBodyBuilder::new_dynamic()
             .translation(position)
-            .linvel(Vector2::new(5.0, 5.0))
-            .additional_mass(MASS)
-            .additional_principal_angular_inertia(MASS)
             .can_sleep(false)
             .ccd_enabled(false)
             .build();
         let body_handle = physic_system.rigid_body_set.insert(rb);
-        let collider = ColliderBuilder::polyline(points.to_vec(), Option::None)
-            .density(0.0)
+
+        let collider = ColliderBuilder::convex_hull(&points.to_vec()).unwrap()
+            .density(0.1)
             .build();
         let collider_handle = physic_system.collider_set.insert_with_parent(
             collider,
@@ -136,11 +136,11 @@ impl Enemy {
         }
     }
 
-    pub fn update(&mut self, _dt: f32, _ctx: &Context, _physics: &mut PhysicsSystem) {
-        // pull into the middle
-
-        // let body = physics.rigid_body_set.get_mut(self.body_handle).unwrap();
-        // body.apply_force(force: Vector<Real>, wake_up: bool)
+    pub fn update(&mut self, _dt: f32, _ctx: &Context, physics: &mut PhysicsSystem) {
+        let body = physics.rigid_body_set.get_mut(self.body_handle).unwrap();
+        let direction = Vector2::new(MIDDLE.0, MIDDLE.1) - body.translation();
+        let direction = direction.normalize();
+        body.apply_force(direction * SPEED, true);
     }
 
     pub fn render(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) -> GameResult<()> {
