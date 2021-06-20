@@ -14,8 +14,8 @@ use crate::entities::player_mesh_creator;
 use crate::systems::render_system::line_mesh::LineMeshRenderer;
 use crate::systems::render_system::Renderable;
 
-const PLAYER_ACC: f32 = 800.0;
-const PLAYER_TURN: f32 = 60.0;
+const PLAYER_ACC: f32 = 60000.0;
+const PLAYER_TURN: f32 = 300000.0;
 
 #[derive(Debug)]
 enum PlayerState {
@@ -31,17 +31,12 @@ pub struct Player {
     _collider_handles: Vec<ColliderHandle>,
 }
 
-const MASS: f32 = 1.0;
-
 impl Player {
     pub fn new(ctx: &mut Context, game: &mut MyGame) -> Self {
         let rb = RigidBodyBuilder::new_dynamic()
             .translation(na::Vector2::new(300.0, 400.0))
             .linear_damping(0.5)
             .angular_damping(10.0)
-            .additional_mass(MASS)
-            .additional_principal_angular_inertia(MASS)
-            .dominance_group(10)
             .can_sleep(false)
             .ccd_enabled(true)
             .build();

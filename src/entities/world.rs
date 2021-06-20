@@ -8,7 +8,7 @@ use crate::PhysicsSystem;
 
 const CENTER: (f32, f32) = (400.0, 300.0);
 const RADIUS: f32 = 300.0;
-const PULL_FORCE: f32 = 1000.0;
+const PULL_FORCE: f32 = 80000.0;
 
 pub struct World {
     mesh: Mesh,

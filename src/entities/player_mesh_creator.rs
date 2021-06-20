@@ -42,15 +42,15 @@ pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
 pub fn build_player_collider() -> Vec<Collider> {
     vec![
         ColliderBuilder::cuboid(4.0, 15.0)
-            .density(0.0)
+            .density(0.05)
             .translation(Vector::new(0.0, 0.0))
             .build(),
         ColliderBuilder::cuboid(4.0, 5.0)
-            .density(0.0)
+            .density(0.5)
             .translation(Vector::new(-4.0, 15.0))
             .build(),
         ColliderBuilder::cuboid(4.0, 5.0)
-            .density(0.0)
+            .density(0.5)
             .translation(Vector::new(4.0, 15.0))
             .build(),
     ]
