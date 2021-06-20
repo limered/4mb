@@ -1,32 +1,34 @@
-use crate::entities::player_mesh_creator::build_player_collider;
-use crate::entities::world::BoundedByWorld;
-use crate::MyGame;
-use crate::PhysicsSystem;
+use ggez::graphics::WHITE;
+use nalgebra::Vector2;
 use rapier2d::dynamics::RigidBodyHandle;
 use rapier2d::prelude::*;
 
 use ggez::input::keyboard::{self, KeyCode};
-use ggez::{Context, GameResult};
+use ggez::Context;
 use nalgebra as na;
 
+use crate::entities::player_mesh_creator::build_player_collider;
+use crate::entities::world::BoundedByWorld;
+use crate::systems::render_system::RenderInfo;
+use crate::MyGame;
+use crate::PhysicsSystem;
 use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
-use crate::systems::render_system::line_mesh::LineMeshRenderer;
 use crate::systems::render_system::Renderable;
 
 const PLAYER_ACC: f32 = 60000.0;
 const PLAYER_TURN: f32 = 300000.0;
 
-#[derive(Debug)]
+#[derive(PartialEq)]
 enum PlayerState {
     Sliding,
     Boosting,
 }
 
 pub struct Player {
-    main_renderer: LineMeshRenderer,
+    pub boost: Boost,
+    render_info: RenderInfo,
     state: PlayerState,
-    boost: Boost,
     body_handle: RigidBodyHandle,
     _collider_handles: Vec<ColliderHandle>,
 }
@@ -52,7 +54,7 @@ impl Player {
         }
         Player {
             state: PlayerState::Sliding,
-            main_renderer: LineMeshRenderer::new(player_mesh_creator::create_player_mesh(ctx)),
+            render_info: RenderInfo::new(player_mesh_creator::create_player_mesh(ctx), WHITE),
             boost: Boost::new(ctx, body_handle),
             body_handle,
             _collider_handles: collider_handles,
@@ -62,19 +64,11 @@ impl Player {
     pub fn update(&mut self, ctx: &Context, physics: &mut PhysicsSystem) {
         self.control_movement(ctx, physics);
         self.control_rotation(ctx, physics);
-    }
-
-    pub fn render(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) -> GameResult<()> {
-        self.main_renderer.render(ctx, self, physics);
-
-        match self.state {
-            PlayerState::Boosting => {
-                self.boost.render(ctx, physics);
-            }
-            _ => (),
-        };
-
-        Ok(())
+        self.render_info
+            .update(self.position(physics), self.rotation(physics), self.color());
+        self.boost.update(physics);
+        self.boost
+            .set_visibility(self.state == PlayerState::Boosting);
     }
 
     fn control_rotation(&mut self, ctx: &Context, physics: &mut PhysicsSystem) {
@@ -109,9 +103,9 @@ impl Player {
 }
 
 impl Renderable for Player {
-    fn position(&self, physics: &mut PhysicsSystem) -> ggez::nalgebra::Point2<f32> {
+    fn position(&self, physics: &PhysicsSystem) -> Vector2<f32> {
         let body = physics.rigid_body_set.get(self.body_handle).unwrap();
-        ggez::nalgebra::Point2::new(body.translation().x, body.translation().y)
+        body.translation().clone()
     }
     fn rotation(&self, physics: &PhysicsSystem) -> f32 {
         let body = physics.rigid_body_set.get(self.body_handle).unwrap();
@@ -119,6 +113,9 @@ impl Renderable for Player {
     }
     fn color(&self) -> ggez::graphics::Color {
         ggez::graphics::WHITE
+    }
+    fn info_as_ref(&self) -> RenderInfo {
+        self.render_info.clone()
     }
 }
 

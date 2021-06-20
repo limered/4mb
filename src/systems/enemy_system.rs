@@ -1,19 +1,19 @@
+use crate::systems::render_system::RenderInfo;
+use crate::RenderSystem;
 use core::f32::consts::PI;
+use ggez::graphics::WHITE;
 use ggez::Context;
-use ggez::GameResult;
 use nalgebra as na;
 use nalgebra::Vector2;
 use rand::Rng;
 use rapier2d::prelude::*;
 
-use crate::systems::render_system::line_mesh::LineMeshRenderer;
 use crate::systems::render_system::Renderable;
 use crate::PhysicsSystem;
 
 const SPAWN_RANGE: (f32, f32) = (300.0, 500.0);
 const SPAWN_TIME: f32 = 1.0;
 const MIDDLE: (f32, f32) = (400.0, 300.0);
-
 
 pub struct EnemySystem {
     pub enemies: Vec<Enemy>,
@@ -56,16 +56,17 @@ impl EnemySystem {
         }
     }
 
-    pub fn render(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) {
-        for enemy in self.enemies.iter_mut() {
-            enemy.render(ctx, physics).unwrap();
+    pub fn add_to_render_system(&mut self, render: &mut RenderSystem) {
+        for enemy in &self.enemies {
+            render.add_to_render(enemy.info_as_ref());
         }
     }
 }
 
+#[derive(PartialEq)]
 pub struct Enemy {
     _movement_direction: na::Vector2<f32>,
-    main_renderer: LineMeshRenderer,
+    render_info: RenderInfo,
     body_handle: RigidBodyHandle,
     _collider_handle: ColliderHandle,
 }
@@ -120,7 +121,8 @@ impl Enemy {
             .build();
         let body_handle = physic_system.rigid_body_set.insert(rb);
 
-        let collider = ColliderBuilder::convex_hull(&points.to_vec()).unwrap()
+        let collider = ColliderBuilder::convex_hull(&points.to_vec())
+            .unwrap()
             .density(0.1)
             .build();
         let collider_handle = physic_system.collider_set.insert_with_parent(
@@ -132,7 +134,7 @@ impl Enemy {
             body_handle,
             _collider_handle: collider_handle,
             _movement_direction: na::Vector2::new(400.0, 300.0) - na::Vector2::new(200.0, 100.0),
-            main_renderer: LineMeshRenderer::new(create_mesh(ctx, points)),
+            render_info: RenderInfo::new(create_mesh(ctx, points), WHITE),
         }
     }
 
@@ -141,19 +143,16 @@ impl Enemy {
         let direction = Vector2::new(MIDDLE.0, MIDDLE.1) - body.translation();
         let direction = direction.normalize();
         body.apply_force(direction * SPEED, true);
-    }
 
-    pub fn render(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) -> GameResult<()> {
-        self.main_renderer.render(ctx, self, physics);
-
-        Ok(())
+        self.render_info
+            .update(self.position(physics), self.rotation(physics), self.color());
     }
 }
 
 impl Renderable for Enemy {
-    fn position(&self, physics: &mut PhysicsSystem) -> ggez::nalgebra::Point2<f32> {
+    fn position(&self, physics: &PhysicsSystem) -> Vector2<f32> {
         let body = physics.rigid_body_set.get(self.body_handle).unwrap();
-        ggez::nalgebra::Point2::new(body.translation().x, body.translation().y)
+        Vector2::new(body.translation().x, body.translation().y)
     }
     fn rotation(&self, physics: &PhysicsSystem) -> f32 {
         let body = physics.rigid_body_set.get(self.body_handle).unwrap();
@@ -161,5 +160,8 @@ impl Renderable for Enemy {
     }
     fn color(&self) -> ggez::graphics::Color {
         ggez::graphics::WHITE
+    }
+    fn info_as_ref(&self) -> RenderInfo {
+        self.render_info.clone()
     }
 }
