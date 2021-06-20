@@ -22,7 +22,7 @@ impl World {
                     DrawMode::stroke(1.0),
                     Point2::new(CENTER.0, CENTER.1),
                     RADIUS,
-                    5.0,
+                    2.0,
                     WHITE,
                 )
                 .build(ctx)

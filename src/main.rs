@@ -50,7 +50,6 @@ impl MyGame {
             accumulator: 0.0,
         };
         game.player = Option::Some(player::Player::new(ctx, &mut game));
-        game.enemy_system.make_enemy(ctx, &mut game.physic_system);
         game
     }
 }

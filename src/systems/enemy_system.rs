@@ -1,3 +1,4 @@
+use core::f32::consts::PI;
 use ggez::Context;
 use ggez::GameResult;
 use nalgebra as na;
@@ -9,23 +10,45 @@ use crate::systems::render_system::line_mesh::LineMeshRenderer;
 use crate::systems::render_system::Renderable;
 use crate::PhysicsSystem;
 
+const SPAWN_RANGE: (f32, f32) = (300.0, 500.0);
+const SPAWN_TIME: f32 = 1.0;
+
 pub struct EnemySystem {
     pub enemies: Vec<Enemy>,
+    pub spawn_timer: f32,
 }
 
 impl EnemySystem {
     pub fn new() -> Self {
         EnemySystem {
             enemies: Vec::new(),
+            spawn_timer: 0.0,
         }
     }
 
+    fn calculate_spawn_position() -> Vector2<f32> {
+        let mut rng = rand::thread_rng();
+        let spawn_radius: f32 =
+            (rng.gen::<f32>() * (SPAWN_RANGE.1 - SPAWN_RANGE.0)) + SPAWN_RANGE.0;
+        let spawn_angle: f32 = rng.gen::<f32>() * 2.0 * PI;
+        let x = spawn_radius * spawn_angle.cos();
+        let y = spawn_radius * spawn_angle.sin();
+        Vector2::new(x, y)
+    }
+
     pub fn make_enemy(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem) {
-        let enemy = Enemy::new(ctx, physics);
+        let position = Self::calculate_spawn_position() + Vector2::new(400.0, 300.0);
+        let enemy = Enemy::new(ctx, position, physics);
         self.enemies.push(enemy);
     }
 
-    pub fn update(&mut self, dt: f32, ctx: &Context, physics: &mut PhysicsSystem) {
+    pub fn update(&mut self, dt: f32, ctx: &mut Context, physics: &mut PhysicsSystem) {
+        self.spawn_timer -= dt;
+        if self.spawn_timer <= 0.0 {
+            self.make_enemy(ctx, physics);
+            self.spawn_timer = SPAWN_TIME;
+        }
+
         for enemy in self.enemies.iter_mut() {
             enemy.update(dt, ctx, physics);
         }
@@ -82,15 +105,19 @@ fn create_mesh(ctx: &mut Context, points: [nalgebra::Point2<f32>; 5]) -> ggez::g
 const MASS: f32 = 1.0;
 
 impl Enemy {
-    pub fn new(ctx: &mut Context, physic_system: &mut PhysicsSystem) -> Self {
+    pub fn new(
+        ctx: &mut Context,
+        position: Vector2<f32>,
+        physic_system: &mut PhysicsSystem,
+    ) -> Self {
         let points = create_mesh_points();
         let rb = RigidBodyBuilder::new_dynamic()
-            .translation(na::Vector2::new(200.0, 100.0))
+            .translation(position)
             .linvel(Vector2::new(5.0, 5.0))
             .additional_mass(MASS)
             .additional_principal_angular_inertia(MASS)
             .can_sleep(false)
-            .ccd_enabled(true)
+            .ccd_enabled(false)
             .build();
         let body_handle = physic_system.rigid_body_set.insert(rb);
         let collider = ColliderBuilder::polyline(points.to_vec(), Option::None)
