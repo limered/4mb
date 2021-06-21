@@ -27,10 +27,10 @@ enum PlayerState {
 
 pub struct Player {
     pub boost: Boost,
+    pub collider_handles: Vec<ColliderHandle>,
     render_info: RenderInfo,
     state: PlayerState,
     body_handle: RigidBodyHandle,
-    _collider_handles: Vec<ColliderHandle>,
 }
 
 impl Player {
@@ -57,7 +57,7 @@ impl Player {
             render_info: RenderInfo::new(player_mesh_creator::create_player_mesh(ctx), WHITE),
             boost: Boost::new(ctx, body_handle),
             body_handle,
-            _collider_handles: collider_handles,
+            collider_handles: collider_handles,
         }
     }
 

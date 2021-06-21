@@ -13,12 +13,20 @@ const SPEED: f32 = 90.0;
 const MAX_SIZE: f32 = 10.0;
 const MIN_SIZE: f32 = 10.0;
 
+#[derive(PartialEq, Clone, Copy)]
+pub enum EnemySize {
+    Big,
+    Middle,
+    Small,
+}
+
 #[derive(PartialEq)]
 pub struct Enemy {
+    pub collider_handle: ColliderHandle,
+    pub body_handle: RigidBodyHandle,
+    pub size: EnemySize,
     _movement_direction: Vector2<f32>,
     render_info: RenderInfo,
-    body_handle: RigidBodyHandle,
-    _collider_handle: ColliderHandle,
 }
 
 impl Enemy {
@@ -26,8 +34,9 @@ impl Enemy {
         ctx: &mut Context,
         position: Vector2<f32>,
         physic_system: &mut PhysicsSystem,
+        size: EnemySize,
     ) -> Self {
-        let points = create_mesh_points();
+        let points = create_mesh_points(size.clone());
         let rb = RigidBodyBuilder::new_dynamic()
             .translation(position)
             .can_sleep(false)
@@ -46,9 +55,10 @@ impl Enemy {
         );
         Enemy {
             body_handle,
-            _collider_handle: collider_handle,
+            collider_handle,
             _movement_direction: Vector2::new(400.0, 300.0) - Vector2::new(200.0, 100.0),
             render_info: RenderInfo::new(create_mesh(ctx, points), WHITE),
+            size,
         }
     }
 
@@ -80,15 +90,45 @@ impl Renderable for Enemy {
     }
 }
 
-fn create_mesh_points() -> [nalgebra::Point2<f32>; 5] {
-    let p1 = random_vec((MIN_SIZE, MAX_SIZE), (MIN_SIZE, MAX_SIZE));
-    let mesh_points: [nalgebra::Point2<f32>; 5] = [
-        p1,
-        random_vec((-MIN_SIZE, -MAX_SIZE), (MIN_SIZE, MAX_SIZE)),
-        random_vec((-MIN_SIZE, -MAX_SIZE), (-MIN_SIZE, -MAX_SIZE)),
-        random_vec((MIN_SIZE, MAX_SIZE), (-MIN_SIZE, -MAX_SIZE)),
-        p1,
-    ];
+fn create_mesh_points(size: EnemySize) -> [nalgebra::Point2<f32>; 5] {
+    let mesh_points: [nalgebra::Point2<f32>; 5] = match size {
+        EnemySize::Big => {
+            let min = MIN_SIZE;
+            let max = MAX_SIZE;
+            let p1 = random_vec((min, max), (min, max));
+            [
+                p1,
+                random_vec((-min, -max), (min, max)),
+                random_vec((-min, -max), (-min, -max)),
+                random_vec((min, max), (-min, -max)),
+                p1,
+            ]
+        }
+        EnemySize::Middle => {
+            let min = MIN_SIZE / 2.0;
+            let max = MAX_SIZE / 2.0;
+            let p1 = random_vec((min, max), (min, max));
+            [
+                p1,
+                random_vec((-min, -max), (min, max)),
+                random_vec((-min, -max), (-min, -max)),
+                random_vec((min, max), (-min, -max)),
+                p1,
+            ]
+        }
+        EnemySize::Small => {
+            let min = MIN_SIZE / 4.0;
+            let max = MAX_SIZE / 4.0;
+            let p1 = random_vec((min, max), (min, max));
+            [
+                p1,
+                random_vec((-min, -max), (min, max)),
+                random_vec((-min, -max), (-min, -max)),
+                random_vec((min, max), (-min, -max)),
+                p1,
+            ]
+        }
+    };
     mesh_points
 }
 

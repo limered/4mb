@@ -81,7 +81,15 @@ impl EventHandler for MyGame {
 
             self.physic_system.update();
             self.accumulator -= dt;
+
+            if let Some(player) = &self.player {
+                self.enemy_system
+                    .process_collisions(&mut self.physic_system, &player);
+            }
         }
+
+        self.enemy_system
+            .process_enemies_to_remove(&mut self.physic_system);
 
         Ok(())
     }
