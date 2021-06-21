@@ -74,8 +74,11 @@ impl EnemySystem {
         }
         self.enemies_to_spawn.clear();
 
-        for enemy in self.enemies.iter_mut() {
+        for (i, enemy) in self.enemies.iter_mut().enumerate() {
             enemy.update(dt, ctx, physics);
+            if enemy.size == EnemySize::Small && enemy.life_time < 0.0 {
+                self.enemies_to_remove.push(i);
+            }
         }
     }
 
@@ -107,12 +110,15 @@ impl EnemySystem {
             }
             let enemy = self.enemies.remove(item);
             let body = physics.rigid_body_set.get(enemy.body_handle).unwrap();
-            let next_size = match enemy.size {
-                EnemySize::Big => EnemySize::Middle,
-                EnemySize::Middle => EnemySize::Small,
-                _ => EnemySize::Small,
+            match enemy.size {
+                EnemySize::Big => self
+                    .enemies_to_spawn
+                    .push((*body.translation(), EnemySize::Middle)),
+                EnemySize::Middle => self
+                    .enemies_to_spawn
+                    .push((*body.translation(), EnemySize::Small)),
+                EnemySize::Small => {}
             };
-            self.enemies_to_spawn.push((*body.translation(), next_size));
             physics.rigid_body_set.remove(
                 enemy.body_handle,
                 &mut physics.island_manager,

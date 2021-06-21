@@ -12,6 +12,7 @@ use crate::Renderable;
 const SPEED: f32 = 90.0;
 const MAX_SIZE: f32 = 10.0;
 const MIN_SIZE: f32 = 10.0;
+const MAX_LIFETIME: f32 = 5.0;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum EnemySize {
@@ -25,6 +26,7 @@ pub struct Enemy {
     pub collider_handle: ColliderHandle,
     pub body_handle: RigidBodyHandle,
     pub size: EnemySize,
+    pub life_time: f32,
     _movement_direction: Vector2<f32>,
     render_info: RenderInfo,
 }
@@ -58,11 +60,12 @@ impl Enemy {
             collider_handle,
             _movement_direction: Vector2::new(400.0, 300.0) - Vector2::new(200.0, 100.0),
             render_info: RenderInfo::new(create_mesh(ctx, points), WHITE),
+            life_time: MAX_LIFETIME,
             size,
         }
     }
 
-    pub fn update(&mut self, _dt: f32, _ctx: &Context, physics: &mut PhysicsSystem) {
+    pub fn update(&mut self, dt: f32, _ctx: &Context, physics: &mut PhysicsSystem) {
         let body = physics.rigid_body_set.get_mut(self.body_handle).unwrap();
         let direction = Vector2::new(MIDDLE.0, MIDDLE.1) - body.translation();
         let direction = direction.normalize();
@@ -70,6 +73,8 @@ impl Enemy {
 
         self.render_info
             .update(self.position(physics), self.rotation(physics), self.color());
+
+        self.life_time -= dt;
     }
 }
 
