@@ -4,9 +4,9 @@ use ggez::Context;
 use rapier2d::prelude::*;
 
 pub fn create_player_mesh(ctx: &mut Context) -> Mesh {
-    let main_reckt = Rect::new(-4.0, -20.0, 8.0, 30.0);
-    let left_reckt = Rect::new(-12.0, 0.0, 8.0, 10.0);
-    let right_reckt = Rect::new(4.0, 0.0, 8.0, 10.0);
+    let main_reckt = Rect::new(-5.0, -16.0, 10.0, 32.0);
+    let left_reckt = Rect::new(-13.0, 3.0, 8.0, 13.0);
+    let right_reckt = Rect::new(5.0, 3.0, 8.0, 13.0);
 
     MeshBuilder::new()
         .rectangle(DrawMode::stroke(2.0), main_reckt, WHITE)
@@ -41,17 +41,16 @@ pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
 
 pub fn build_player_collider() -> Vec<Collider> {
     vec![
-        ColliderBuilder::cuboid(4.0, 15.0)
-            .density(0.05)
-            .translation(Vector::new(0.0, 0.0))
+        ColliderBuilder::cuboid(5.0, 16.0).density(0.05).build(),
+        ColliderBuilder::ball(13.0)
+            .density(0.06)
+            .translation(Vector::new(-10.0, 8.0))
+            // .sensor(true)
             .build(),
-        ColliderBuilder::cuboid(4.0, 5.0)
-            .density(0.5)
-            .translation(Vector::new(-4.0, 15.0))
-            .build(),
-        ColliderBuilder::cuboid(4.0, 5.0)
-            .density(0.5)
-            .translation(Vector::new(4.0, 15.0))
+        ColliderBuilder::ball(13.0)
+            .density(0.06)
+            .translation(Vector::new(10.0, 8.0))
+            // .sensor(true)
             .build(),
     ]
 }

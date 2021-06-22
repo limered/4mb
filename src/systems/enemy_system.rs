@@ -87,17 +87,28 @@ impl EnemySystem {
             if enemy.size == EnemySize::Small {
                 continue;
             }
-            for contact_pair in physics.narrow_phase.contacts_with(enemy.collider_handle) {
-                let other_collider = if contact_pair.collider1 == enemy.collider_handle {
-                    contact_pair.collider2
+
+            let mut valid_collision = false;
+
+            for collider_pair in physics.narrow_phase.contacts_with(enemy.collider_handle) {
+                let other_collider = if collider_pair.collider1 == enemy.collider_handle {
+                    collider_pair.collider2
                 } else {
-                    contact_pair.collider1
+                    collider_pair.collider1
                 };
-                if other_collider == player.collider_handles[1]
-                    || other_collider == player.collider_handles[2]
+
+                if other_collider == player.collider_handles[0]
+                    || other_collider == player.collider_handles[1]
                 {
-                    self.enemies_to_remove.push(i);
+                    valid_collision = true;
                 }
+                if other_collider == player.collider_handles[2] {
+                    valid_collision = false;
+                }
+            }
+
+            if valid_collision {
+                self.enemies_to_remove.push(i);
             }
         }
     }
