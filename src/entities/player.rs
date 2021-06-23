@@ -7,8 +7,7 @@ use ggez::input::keyboard::{self, KeyCode};
 use ggez::Context;
 use nalgebra as na;
 
-use crate::constants::PLAYER_ACC;
-use crate::constants::PLAYER_TURN;
+use crate::constants::*;
 use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
 use crate::entities::player_mesh_creator::build_player_collider;
@@ -53,7 +52,11 @@ impl Player {
         }
         Player {
             state: PlayerState::Sliding,
-            render_info: RenderInfo::new(player_mesh_creator::create_player_mesh(ctx), WHITE),
+            render_info: RenderInfo::new(
+                player_mesh_creator::create_player_mesh(ctx),
+                WHITE,
+                D_ANIMATED,
+            ),
             boost: Boost::new(ctx, body_handle),
             body_handle,
             collider_handles: collider_handles,

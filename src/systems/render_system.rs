@@ -26,10 +26,11 @@ pub struct RenderInfo {
     rotation_last: f32,
     scale: f32,
     color: ggez::graphics::Color,
+    depth: i8,
 }
 
 impl RenderInfo {
-    pub fn new(mesh: Mesh, color: ggez::graphics::Color) -> Self {
+    pub fn new(mesh: Mesh, color: ggez::graphics::Color, depth: i8) -> Self {
         RenderInfo {
             mesh,
             color,
@@ -40,7 +41,12 @@ impl RenderInfo {
             scale: 1.0,
             is_visible: true,
             is_player: false,
+            depth,
         }
+    }
+
+    pub fn depth(&mut self, depth: i8) {
+        self.depth = depth;
     }
 
     pub fn update(&mut self, position: Vector2<f32>, rotation: f32, color: Color) {
@@ -75,6 +81,9 @@ impl RenderSystem {
         }
     }
     pub fn render(&mut self, ctx: &mut ggez::Context) {
+        // println!("{}",self.renderables.len());
+        self.renderables.sort_by(|a, b| b.depth.cmp(&a.depth));
+
         for info in &self.renderables {
             if info.is_player {
                 self.camera.set_transform_position(info.position);

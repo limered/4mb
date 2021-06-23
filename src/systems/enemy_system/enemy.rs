@@ -63,7 +63,7 @@ impl Enemy {
             body_handle,
             collider_handle,
             _movement_direction: Vector2::new(400.0, 300.0) - Vector2::new(200.0, 100.0),
-            render_info: RenderInfo::new(create_mesh(ctx, points), WHITE),
+            render_info: RenderInfo::new(create_mesh(ctx, points), WHITE, D_ANIMATED),
             life_time: ENEMY_MAX_LIFETIME,
             deletion_reason: DeletionReason::None,
             size,
@@ -80,13 +80,19 @@ impl Enemy {
         self.render_info
             .update(self.position(physics), self.rotation(physics), self.color());
 
+        let distance_to_earth = (Vector::new(MIDDLE.0, MIDDLE.1) - position).norm();
         if self.size == EnemySize::Small {
-            let distance_to_earth = (Vector::new(MIDDLE.0, MIDDLE.1) - position).norm();
             if distance_to_earth < ENEMY_BURNUP_DISTANCE {
                 self.life_time -= dt;
                 let scale = self.life_time / ENEMY_MAX_LIFETIME;
                 self.render_info.set_scale(scale);
             }
+        }
+
+        if distance_to_earth > OUTER_SPACE_DISTANCE {
+            self.life_time -= dt;
+            let scale = self.life_time / ENEMY_MAX_LIFETIME;
+            self.render_info.set_scale(scale);
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::World;
+use crate::systems::enemy_system::scanline::Scanline;
 use core::f32::consts::PI;
 use ggez::Context;
 use nalgebra::Vector2;
@@ -18,31 +18,37 @@ pub struct EnemySystem {
     pub enemies: Vec<Enemy>,
     pub enemies_to_remove: Vec<usize>,
     pub enemies_to_spawn: Vec<(Vector2<f32>, EnemySize)>,
-    pub spawn_timer: f32,
+    scanline: Scanline,
 }
 
 impl EnemySystem {
-    pub fn new() -> Self {
+    pub fn new(ctx: &mut Context) -> Self {
         EnemySystem {
             enemies: Vec::new(),
             enemies_to_remove: Vec::new(),
             enemies_to_spawn: Vec::new(),
-            spawn_timer: 0.0,
+            scanline: Scanline::new(ctx),
         }
     }
 
-    fn calculate_spawn_position() -> Vector2<f32> {
+    fn calculate_spawn_position(angle: f32) -> Vector2<f32> {
         let mut rng = rand::thread_rng();
         let spawn_radius: f32 =
             (rng.gen::<f32>() * (SPAWN_RANGE.1 - SPAWN_RANGE.0)) + SPAWN_RANGE.0;
-        let spawn_angle: f32 = rng.gen::<f32>() * 2.0 * PI;
-        let x = spawn_radius * spawn_angle.cos();
-        let y = spawn_radius * spawn_angle.sin();
+        let real_angle = angle + PI / 2.0;
+        let x = spawn_radius * real_angle.cos();
+        let y = spawn_radius * real_angle.sin();
         Vector2::new(x, y)
     }
 
-    pub fn make_enemy(&mut self, ctx: &mut Context, physics: &mut PhysicsSystem, size: EnemySize) {
-        let position = Self::calculate_spawn_position() + Vector2::new(MIDDLE.0, MIDDLE.1);
+    pub fn make_enemy(
+        &mut self,
+        ctx: &mut Context,
+        physics: &mut PhysicsSystem,
+        size: EnemySize,
+        angle: f32,
+    ) {
+        let position = Self::calculate_spawn_position(angle) + Vector2::new(MIDDLE.0, MIDDLE.1);
         self.make_enemy_at_position(ctx, physics, position, size);
     }
 
@@ -58,10 +64,9 @@ impl EnemySystem {
     }
 
     pub fn update(&mut self, dt: f32, ctx: &mut Context, physics: &mut PhysicsSystem) {
-        self.spawn_timer -= dt;
-        if self.spawn_timer <= 0.0 {
-            self.make_enemy(ctx, physics, EnemySize::Big);
-            self.spawn_timer = SPAWN_TIME;
+        let (spawn, angle) = self.scanline.update(dt, physics);
+        if spawn {
+            self.make_enemy(ctx, physics, EnemySize::Big, angle);
         }
 
         // Spawn smaller enemies
@@ -75,7 +80,7 @@ impl EnemySystem {
 
         for (i, enemy) in self.enemies.iter_mut().enumerate() {
             enemy.update(dt, ctx, physics);
-            if enemy.size == EnemySize::Small && enemy.life_time < 0.0 {
+            if enemy.life_time < 0.0 {
                 self.enemies_to_remove.push(i);
             }
         }
@@ -157,7 +162,9 @@ impl EnemySystem {
         for enemy in &self.enemies {
             render.add_to_render(enemy.info_as_ref());
         }
+        render.add_to_render(self.scanline.info_as_ref());
     }
 }
 
 pub mod enemy;
+pub mod scanline;

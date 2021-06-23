@@ -50,7 +50,7 @@ impl MyGame {
         let mut physic_system = PhysicsSystem::new();
         let mut game = MyGame {
             player: Option::None,
-            enemy_system: EnemySystem::new(),
+            enemy_system: EnemySystem::new(ctx),
             world: World::new(ctx, &mut physic_system),
             physic_system,
             render_system,
@@ -66,8 +66,8 @@ impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let dt = systems::physic_system::DT;
         let mut frame_time = ggez::timer::delta(ctx).as_secs_f32();
-        if frame_time > 0.25 {
-            frame_time = 0.25;
+        if frame_time > 0.1 {
+            frame_time = 0.1;
         }
 
         self.accumulator += frame_time;

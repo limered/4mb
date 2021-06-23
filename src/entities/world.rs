@@ -1,3 +1,4 @@
+use ggez::graphics::Color;
 use ggez::graphics::DrawMode;
 use ggez::graphics::{MeshBuilder, WHITE};
 use ggez::nalgebra::Point2;
@@ -39,12 +40,13 @@ impl World {
                         DrawMode::stroke(1.0),
                         Point2::new(MIDDLE.0, MIDDLE.1),
                         EXTERIOR_RADIUS,
-                        2.0,
+                        1.0,
                         WHITE,
                     )
                     .build(ctx)
                     .expect("World generation failed."),
                 WHITE,
+                D_EARTH,
             ),
             earth_render_info: RenderInfo::new(
                 MeshBuilder::new()
@@ -58,6 +60,7 @@ impl World {
                     .build(ctx)
                     .expect("Earth Died"),
                 WHITE,
+                D_EARTH,
             ),
         }
     }
@@ -84,7 +87,7 @@ impl Renderable for World {
         Vector2::new(0.0, 0.0)
     }
     fn color(&self) -> ggez::graphics::Color {
-        ggez::graphics::WHITE
+        ggez::graphics::Color::new(1.0, 1.0, 1.0, 0.1)
     }
     fn rotation(&self, _: &PhysicsSystem) -> f32 {
         0.0

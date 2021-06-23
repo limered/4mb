@@ -1,3 +1,4 @@
+use crate::constants::D_ANIMATED;
 use ggez::graphics::WHITE;
 use ggez::Context;
 use nalgebra::Vector2;
@@ -18,7 +19,11 @@ pub struct Boost {
 impl Boost {
     pub fn new(ctx: &mut Context, player_body_handle: RigidBodyHandle) -> Self {
         Boost {
-            render_info: RenderInfo::new(player_mesh_creator::create_player_boost_mesh(ctx), WHITE),
+            render_info: RenderInfo::new(
+                player_mesh_creator::create_player_boost_mesh(ctx),
+                WHITE,
+                D_ANIMATED,
+            ),
             player_body_handle,
             is_visible: false,
         }
