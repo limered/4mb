@@ -87,7 +87,7 @@ impl RenderSystem {
                     (
                         point_to_point(pos),
                         info.rotation,
-                        ggez::nalgebra::Point2::new(0.0,0.0),
+                        ggez::nalgebra::Point2::new(0.0, 0.0),
                         ggez::nalgebra::Vector2::new(info.scale, info.scale),
                         info.color,
                     ),

@@ -1,3 +1,4 @@
+use crate::World;
 use core::f32::consts::PI;
 use ggez::Context;
 use nalgebra::Vector2;
@@ -6,6 +7,7 @@ use rapier2d::prelude::*;
 
 use crate::constants::*;
 use crate::player::Player;
+use crate::systems::enemy_system::enemy::DeletionReason;
 use crate::systems::enemy_system::enemy::Enemy;
 use crate::systems::enemy_system::enemy::EnemySize;
 use crate::PhysicsSystem;
@@ -79,8 +81,13 @@ impl EnemySystem {
         }
     }
 
-    pub fn process_collisions(&mut self, physics: &mut PhysicsSystem, player: &Player) {
-        for (i, enemy) in self.enemies.iter().enumerate() {
+    pub fn process_collisions(
+        &mut self,
+        physics: &mut PhysicsSystem,
+        player: &Player,
+        earth_handle: &ColliderHandle,
+    ) {
+        for (i, enemy) in self.enemies.iter_mut().enumerate() {
             if enemy.size == EnemySize::Small {
                 continue;
             }
@@ -98,9 +105,14 @@ impl EnemySystem {
                     || other_collider == player.collider_handles[1]
                 {
                     valid_collision = true;
+                    enemy.deletion_reason = DeletionReason::Player;
                 }
                 if other_collider == player.collider_handles[2] {
                     valid_collision = false;
+                }
+                if other_collider == *earth_handle {
+                    valid_collision = true;
+                    enemy.deletion_reason = DeletionReason::Earth;
                 }
             }
 
@@ -118,15 +130,19 @@ impl EnemySystem {
             }
             let enemy = self.enemies.remove(item);
             let body = physics.rigid_body_set.get(enemy.body_handle).unwrap();
-            match enemy.size {
-                EnemySize::Big => self
-                    .enemies_to_spawn
-                    .push((*body.translation(), EnemySize::Middle)),
-                EnemySize::Middle => self
-                    .enemies_to_spawn
-                    .push((*body.translation(), EnemySize::Small)),
-                EnemySize::Small => {}
-            };
+            if enemy.deletion_reason == DeletionReason::Player {
+                match enemy.size {
+                    EnemySize::Big => self
+                        .enemies_to_spawn
+                        .push((*body.translation(), EnemySize::Middle)),
+                    EnemySize::Middle => self
+                        .enemies_to_spawn
+                        .push((*body.translation(), EnemySize::Small)),
+                    EnemySize::Small => {}
+                };
+            } else if enemy.deletion_reason == DeletionReason::Earth {
+                // Do Stuff for earth collision
+            }
             physics.rigid_body_set.remove(
                 enemy.body_handle,
                 &mut physics.island_manager,

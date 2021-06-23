@@ -85,8 +85,11 @@ impl EventHandler for MyGame {
             self.accumulator -= dt;
 
             if let Some(player) = &self.player {
-                self.enemy_system
-                    .process_collisions(&mut self.physic_system, &player);
+                self.enemy_system.process_collisions(
+                    &mut self.physic_system,
+                    &player,
+                    &self.world.earth_collider_handle,
+                );
             }
         }
 

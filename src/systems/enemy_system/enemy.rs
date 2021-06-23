@@ -17,11 +17,20 @@ pub enum EnemySize {
 }
 
 #[derive(PartialEq)]
+pub enum DeletionReason {
+    None,
+    Player,
+    Earth,
+    Burnup,
+}
+
+#[derive(PartialEq)]
 pub struct Enemy {
     pub collider_handle: ColliderHandle,
     pub body_handle: RigidBodyHandle,
     pub size: EnemySize,
     pub life_time: f32,
+    pub deletion_reason: DeletionReason,
     _movement_direction: Vector2<f32>,
     render_info: RenderInfo,
 }
@@ -56,6 +65,7 @@ impl Enemy {
             _movement_direction: Vector2::new(400.0, 300.0) - Vector2::new(200.0, 100.0),
             render_info: RenderInfo::new(create_mesh(ctx, points), WHITE),
             life_time: ENEMY_MAX_LIFETIME,
+            deletion_reason: DeletionReason::None,
             size,
         }
     }

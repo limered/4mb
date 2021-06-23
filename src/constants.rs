@@ -15,6 +15,5 @@ pub const ENEMY_MIN_SIZE: f32 = 10.0;
 pub const ENEMY_MAX_LIFETIME: f32 = 1.0;
 pub const ENEMY_BURNUP_DISTANCE: f32 = EARTH_RADIUS * 1.8;
 
-
 pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
 pub const SPAWN_TIME: f32 = 1.0;

@@ -12,10 +12,10 @@ use crate::PhysicsSystem;
 
 #[derive(PartialEq)]
 pub struct World {
+    pub earth_collider_handle: ColliderHandle,
     render_info: RenderInfo,
     earth_render_info: RenderInfo,
     earth_body_handle: RigidBodyHandle,
-    earth_collider_handle: ColliderHandle,
 }
 
 impl World {
