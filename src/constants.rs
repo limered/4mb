@@ -1,0 +1,20 @@
+// PLAYER
+pub const PLAYER_ACC: f32 = 80000.0;
+pub const PLAYER_TURN: f32 = 600000.0;
+
+// World
+pub const MIDDLE: (f32, f32) = (400.0, 300.0);
+pub const EXTERIOR_RADIUS: f32 = 600.0;
+pub const EXTERIOR_PULL_FORCE: f32 = 80000.0;
+pub const EARTH_RADIUS: f32 = 100.0;
+
+// ENEMIES
+pub const EARTH_GRAVITY: f32 = 9.807 * 8.0;
+pub const ENEMY_MAX_SIZE: f32 = 10.0;
+pub const ENEMY_MIN_SIZE: f32 = 10.0;
+pub const ENEMY_MAX_LIFETIME: f32 = 1.0;
+pub const ENEMY_BURNUP_DISTANCE: f32 = EARTH_RADIUS * 1.8;
+
+
+pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
+pub const SPAWN_TIME: f32 = 1.0;

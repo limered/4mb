@@ -9,6 +9,7 @@ use crate::entities::world::{BoundedByWorld, World};
 use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
 
+mod constants;
 mod entities;
 mod systems;
 
@@ -46,11 +47,12 @@ pub struct MyGame {
 impl MyGame {
     pub fn new(ctx: &mut Context) -> MyGame {
         let render_system = RenderSystem::new();
+        let mut physic_system = PhysicsSystem::new();
         let mut game = MyGame {
             player: Option::None,
-            physic_system: PhysicsSystem::new(),
             enemy_system: EnemySystem::new(),
-            world: World::new(ctx),
+            world: World::new(ctx, &mut physic_system),
+            physic_system,
             render_system,
             accumulator: 0.0,
         };

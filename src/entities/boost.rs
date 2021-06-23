@@ -51,7 +51,7 @@ impl Renderable for Boost {
     fn color(&self) -> ggez::graphics::Color {
         WHITE
     }
-    fn info_as_ref(&self) -> RenderInfo {
-        self.render_info.clone()
+    fn info_as_ref(&self) -> Vec<RenderInfo> {
+        vec![self.render_info.clone()]
     }
 }

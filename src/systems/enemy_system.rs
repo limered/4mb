@@ -4,16 +4,13 @@ use nalgebra::Vector2;
 use rand::Rng;
 use rapier2d::prelude::*;
 
+use crate::constants::*;
 use crate::player::Player;
 use crate::systems::enemy_system::enemy::Enemy;
 use crate::systems::enemy_system::enemy::EnemySize;
 use crate::PhysicsSystem;
 use crate::RenderSystem;
 use crate::Renderable;
-
-const SPAWN_RANGE: (f32, f32) = (300.0, 500.0);
-const SPAWN_TIME: f32 = 1.0;
-const MIDDLE: (f32, f32) = (400.0, 300.0);
 
 pub struct EnemySystem {
     pub enemies: Vec<Enemy>,

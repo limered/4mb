@@ -12,7 +12,7 @@ pub trait Renderable {
     fn position(&self, physics: &PhysicsSystem) -> Vector2<f32>;
     fn rotation(&self, physics: &PhysicsSystem) -> f32;
     fn color(&self) -> ggez::graphics::Color;
-    fn info_as_ref(&self) -> RenderInfo;
+    fn info_as_ref(&self) -> Vec<RenderInfo>;
 }
 
 #[derive(PartialEq, Clone)]
@@ -24,6 +24,7 @@ pub struct RenderInfo {
     position_last: Vector2<f32>,
     rotation: f32,
     rotation_last: f32,
+    scale: f32,
     color: ggez::graphics::Color,
 }
 
@@ -36,6 +37,7 @@ impl RenderInfo {
             position_last: Vector2::zeros(),
             rotation: 0.0,
             rotation_last: 0.0,
+            scale: 1.0,
             is_visible: true,
             is_player: false,
         }
@@ -47,6 +49,10 @@ impl RenderInfo {
         self.position = position;
         self.rotation = rotation;
         self.color = color;
+    }
+
+    pub fn set_scale(&mut self, scale: f32) {
+        self.scale = scale;
     }
 }
 
@@ -63,8 +69,10 @@ impl RenderSystem {
         }
     }
 
-    pub fn add_to_render(&mut self, info: RenderInfo) {
-        self.renderables.push(info);
+    pub fn add_to_render(&mut self, infos: Vec<RenderInfo>) {
+        for info in infos.iter() {
+            self.renderables.push(info.clone());
+        }
     }
     pub fn render(&mut self, ctx: &mut ggez::Context) {
         for info in &self.renderables {
@@ -76,7 +84,13 @@ impl RenderSystem {
                 ggez::graphics::draw(
                     ctx,
                     &info.mesh,
-                    (point_to_point(pos), info.rotation, info.color),
+                    (
+                        point_to_point(pos),
+                        info.rotation,
+                        ggez::nalgebra::Point2::new(0.0,0.0),
+                        ggez::nalgebra::Vector2::new(info.scale, info.scale),
+                        info.color,
+                    ),
                 )
                 .unwrap();
             }

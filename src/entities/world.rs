@@ -5,28 +5,40 @@ use ggez::Context;
 use nalgebra::Vector2;
 use rapier2d::prelude::*;
 
+use crate::constants::*;
 use crate::systems::render_system::RenderInfo;
 use crate::systems::render_system::Renderable;
 use crate::PhysicsSystem;
 
-const CENTER: (f32, f32) = (400.0, 300.0);
-const RADIUS: f32 = 300.0;
-const PULL_FORCE: f32 = 80000.0;
-
 #[derive(PartialEq)]
 pub struct World {
     render_info: RenderInfo,
+    earth_render_info: RenderInfo,
+    earth_body_handle: RigidBodyHandle,
+    earth_collider_handle: ColliderHandle,
 }
 
 impl World {
-    pub fn new(ctx: &mut Context) -> Self {
+    pub fn new(ctx: &mut Context, physics: &mut PhysicsSystem) -> Self {
+        let earth_body = RigidBodyBuilder::new_static()
+            .translation(Vector::new(MIDDLE.0, MIDDLE.1))
+            .dominance_group(10)
+            .build();
+        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS).build();
+        let earth_body_handle = physics.rigid_body_set.insert(earth_body);
         World {
+            earth_body_handle,
+            earth_collider_handle: physics.collider_set.insert_with_parent(
+                earth_collider,
+                earth_body_handle,
+                &mut physics.rigid_body_set,
+            ),
             render_info: RenderInfo::new(
                 MeshBuilder::new()
                     .circle(
                         DrawMode::stroke(1.0),
-                        Point2::new(CENTER.0, CENTER.1),
-                        RADIUS,
+                        Point2::new(MIDDLE.0, MIDDLE.1),
+                        EXTERIOR_RADIUS,
                         2.0,
                         WHITE,
                     )
@@ -34,15 +46,28 @@ impl World {
                     .expect("World generation failed."),
                 WHITE,
             ),
+            earth_render_info: RenderInfo::new(
+                MeshBuilder::new()
+                    .circle(
+                        DrawMode::stroke(1.0),
+                        Point2::new(MIDDLE.0, MIDDLE.1),
+                        EARTH_RADIUS,
+                        2.0,
+                        WHITE,
+                    )
+                    .build(ctx)
+                    .expect("Earth Died"),
+                WHITE,
+            ),
         }
     }
 
     pub fn update(&mut self, handle: &RigidBodyHandle, physics: &mut PhysicsSystem) {
         let body = physics.rigid_body_set.get_mut(*handle).unwrap();
-        let direction = Vector::new(CENTER.0, CENTER.1) - body.translation();
-        if direction.norm() > RADIUS {
+        let direction = Vector::new(MIDDLE.0, MIDDLE.1) - body.translation();
+        if direction.norm() > EXTERIOR_RADIUS {
             let direction = direction.normalize();
-            body.apply_force(direction * PULL_FORCE, true);
+            body.apply_force(direction * EXTERIOR_PULL_FORCE, true);
         }
 
         self.render_info
@@ -64,7 +89,7 @@ impl Renderable for World {
     fn rotation(&self, _: &PhysicsSystem) -> f32 {
         0.0
     }
-    fn info_as_ref(&self) -> RenderInfo {
-        self.render_info.clone()
+    fn info_as_ref(&self) -> Vec<RenderInfo> {
+        vec![self.render_info.clone(), self.earth_render_info.clone()]
     }
 }
