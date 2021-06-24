@@ -1,5 +1,5 @@
-use crate::World;
 use crate::systems::enemy_system::scanline::Scanline;
+use crate::World;
 use core::f32::consts::PI;
 use ggez::Context;
 use nalgebra::Vector2;
@@ -154,14 +154,13 @@ impl EnemySystem {
                     EnemySize::Big => COLL_BIG,
                 };
                 world.add_damage_from_enemy(enemy_data);
-                if enemy.size != EnemySize::Small{
+                if enemy.size != EnemySize::Small {
                     for _i in 0..5 {
                         let mut rng = rand::thread_rng();
-                        let x:f32 = rng.gen::<f32>() * 30.0 - 15.0;
-                        let y:f32 = rng.gen::<f32>() * 30.0 - 15.0;
+                        let x: f32 = rng.gen::<f32>() * 30.0 - 15.0;
+                        let y: f32 = rng.gen::<f32>() * 30.0 - 15.0;
                         let pos = Vector2::new(body.translation().x + x, body.translation().y + y);
-                        self.enemies_to_spawn
-                            .push((pos, EnemySize::Small));
+                        self.enemies_to_spawn.push((pos, EnemySize::Small));
                     }
                 }
             }

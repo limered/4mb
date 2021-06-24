@@ -12,10 +12,10 @@ use crate::PhysicsSystem;
 #[derive(PartialEq)]
 pub struct World {
     pub earth_collider_handle: ColliderHandle,
+    pub health: i32,
     render_info: RenderInfo,
     earth_render_info: RenderInfo,
     earth_body_handle: RigidBodyHandle,
-    health: i32,
     damage_cooldown: f32,
 }
 
@@ -25,7 +25,9 @@ impl World {
             .translation(Vector::new(MIDDLE.0, MIDDLE.1))
             .dominance_group(10)
             .build();
-        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS - 5.0).restitution(1.0).build();
+        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS - 5.0)
+            .restitution(1.0)
+            .build();
         let earth_body_handle = physics.rigid_body_set.insert(earth_body);
         World {
             earth_body_handle,
@@ -84,15 +86,11 @@ impl World {
             dt,
         );
 
-        self.earth_render_info.update(
-            self.position(physics),
-            self.rotation(physics),
-            WHITE,
-            dt,
-        );
+        self.earth_render_info
+            .update(self.position(physics), self.rotation(physics), WHITE, dt);
     }
 
-    pub fn add_damage_from_enemy(&mut self, data: u128){
+    pub fn add_damage_from_enemy(&mut self, data: u128) {
         if self.damage_cooldown > 0.0 {
             return;
         }
@@ -102,7 +100,7 @@ impl World {
             COLL_SMALL => DAMAGE_SMALL,
             COLL_MIDDLE => DAMAGE_MIDDLE,
             COLL_BIG => DAMAGE_BIG,
-            _ => DAMAGE_SMALL
+            _ => DAMAGE_SMALL,
         };
 
         if damage > 0 {

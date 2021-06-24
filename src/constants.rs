@@ -17,8 +17,7 @@ pub const ENEMY_MAX_LIFETIME: f32 = 1.0;
 pub const ENEMY_BURNUP_DISTANCE: f32 = EARTH_RADIUS * 1.8;
 pub const OUTER_SPACE_DISTANCE: f32 = 4000.0;
 
-// pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
-pub const SPAWN_RANGE: (f32, f32) = (EARTH_RADIUS + 30.0, EARTH_RADIUS + 200.0);
+pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
 pub const SPAWN_TIME: f32 = 2.772;
 
 // DEPTHS
@@ -37,7 +36,7 @@ pub const COLL_MIDDLE: u128 = 31;
 pub const COLL_BIG: u128 = 32;
 
 // GAME_VARS
-pub const HEALTH: i32 = 1000;
+pub const HEALTH: i32 = 2000;
 pub const DAMAGE_SMALL: i32 = 0;
 pub const DAMAGE_MIDDLE: i32 = 50;
 pub const DAMAGE_BIG: i32 = 100;

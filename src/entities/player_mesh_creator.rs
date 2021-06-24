@@ -1,5 +1,5 @@
-use crate::constants::COLL_PLAYER_HEAVY;
 use crate::constants::COLL_PLAYER;
+use crate::constants::COLL_PLAYER_HEAVY;
 use ggez::graphics::{DrawMode, Mesh, MeshBuilder, Rect, WHITE};
 use ggez::nalgebra::Point2;
 use ggez::Context;
@@ -43,7 +43,10 @@ pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
 
 pub fn build_player_collider() -> Vec<Collider> {
     vec![
-        ColliderBuilder::cuboid(5.0, 16.0).density(0.05).user_data(COLL_PLAYER).build(),
+        ColliderBuilder::cuboid(5.0, 16.0)
+            .density(0.05)
+            .user_data(COLL_PLAYER)
+            .build(),
         ColliderBuilder::ball(13.0)
             .density(0.06)
             .translation(Vector::new(-10.0, 8.0))

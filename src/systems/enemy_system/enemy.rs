@@ -50,7 +50,7 @@ impl Enemy {
             .ccd_enabled(false)
             .build();
         let body_handle = physic_system.rigid_body_set.insert(rb);
-        let coll_data = match size{
+        let coll_data = match size {
             EnemySize::Small => COLL_SMALL,
             EnemySize::Middle => COLL_MIDDLE,
             EnemySize::Big => COLL_BIG,

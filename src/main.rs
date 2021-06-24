@@ -1,5 +1,6 @@
 use crate::systems::render_system::RenderSystem;
 use crate::systems::render_system::Renderable;
+use crate::systems::world_system::health::Health;
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
@@ -41,6 +42,7 @@ pub struct MyGame {
     pub enemy_system: EnemySystem,
     pub world: World,
     pub render_system: RenderSystem,
+    pub health_system: Health,
     accumulator: f32,
 }
 
@@ -55,6 +57,7 @@ impl MyGame {
             physic_system,
             render_system,
             accumulator: 0.0,
+            health_system: Health::new(ctx),
         };
         let player = player::Player::new(ctx, &mut game);
         game.player = Option::Some(player);
@@ -96,11 +99,16 @@ impl EventHandler for MyGame {
         self.enemy_system
             .process_enemies_to_remove(&mut self.physic_system, &mut self.world);
 
+        self.health_system.update(&self.world);
+
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, graphics::BLACK);
+
+        self.render_system
+            .add_to_render(self.health_system.info_as_ref());
 
         if let Some(player) = &self.player {
             self.render_system.add_to_render(player.info_as_ref());

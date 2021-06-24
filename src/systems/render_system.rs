@@ -32,6 +32,7 @@ pub struct RenderInfo {
     pub velocity: Vector2<f32>,
     pub render_effect: RenderEffect,
     pub render_effect_t: f32,
+    pub blend_mode: BlendMode,
     mesh: Mesh,
     position: Vector2<f32>,
     position_last: Vector2<f32>,
@@ -58,6 +59,7 @@ impl RenderInfo {
             depth,
             render_effect: RenderEffect::None,
             render_effect_t: 0.0,
+            blend_mode: BlendMode::Add,
         }
     }
 
@@ -117,8 +119,6 @@ impl RenderSystem {
         self.renderables.sort_by(|a, b| b.depth.cmp(&a.depth));
         self.camera.update();
 
-        set_blend_mode(ctx, BlendMode::Add).expect("");
-
         for info in &self.renderables {
             RenderSystem::update_camera(&mut self.camera, info);
             RenderSystem::render_info(ctx, &self.camera, info);
@@ -128,6 +128,8 @@ impl RenderSystem {
 
     fn render_info(ctx: &mut ggez::Context, camera: &Camera, info: &RenderInfo) {
         if info.is_visible {
+            set_blend_mode(ctx, info.blend_mode).expect("Cant Change Blend Mode");
+
             let positions = RenderSystem::split_positions(info);
             let colors = RenderSystem::split_colors(info);
             RenderSystem::render_effect(ctx, camera, info, positions.0, colors.0);
