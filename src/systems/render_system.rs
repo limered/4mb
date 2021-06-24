@@ -2,9 +2,11 @@ use crate::systems::render_system::camera::Camera;
 use crate::PhysicsSystem;
 use ggez::graphics::Color;
 use ggez::graphics::Mesh;
+use ggez::graphics::{set_blend_mode, BlendMode};
 use nalgebra::Isometry2;
 use nalgebra::Point2;
 use nalgebra::Vector2;
+use rand::Rng;
 
 pub mod camera;
 
@@ -16,10 +18,17 @@ pub trait Renderable {
 }
 
 #[derive(PartialEq, Clone)]
+pub enum RenderEffect {
+    None,
+    SpeedShift(f32),
+}
+
+#[derive(PartialEq, Clone)]
 pub struct RenderInfo {
     pub is_visible: bool,
     pub is_player: bool,
     pub velocity: Vector2<f32>,
+    pub render_effect: RenderEffect,
     mesh: Mesh,
     position: Vector2<f32>,
     position_last: Vector2<f32>,
@@ -44,6 +53,7 @@ impl RenderInfo {
             is_visible: true,
             is_player: false,
             depth,
+            render_effect: RenderEffect::None,
         }
     }
 
@@ -87,34 +97,93 @@ impl RenderSystem {
         self.renderables.sort_by(|a, b| b.depth.cmp(&a.depth));
         self.camera.update();
 
+        set_blend_mode(ctx, BlendMode::Add).expect("");
+
         for info in &self.renderables {
-            if info.is_player {
-                self.camera.set_transform_position(
-                    info.position,
-                    info.position_last,
-                    info.rotation,
-                );
-            }
-            if info.is_visible {
-                let pos = self.camera.modify(info.position);
-                ggez::graphics::draw(
-                    ctx,
-                    &info.mesh,
-                    (
-                        point_to_point(pos),
-                        info.rotation,
-                        ggez::nalgebra::Point2::new(0.0, 0.0),
-                        ggez::nalgebra::Vector2::new(info.scale, info.scale),
-                        info.color,
-                    ),
-                )
-                .unwrap();
-            }
+            RenderSystem::update_camera(&mut self.camera, info);
+            RenderSystem::render_info(ctx, &self.camera, info);
         }
         self.renderables.clear();
+    }
+
+    fn render_info(ctx: &mut ggez::Context, camera: &Camera, info: &RenderInfo) {
+        if info.is_visible {
+            let positions = RenderSystem::split_positions(info);
+            let colors = RenderSystem::split_colors(&info.color);
+            RenderSystem::render_effect(ctx, camera, info, positions.0, colors.0);
+            RenderSystem::render_effect(ctx, camera, info, positions.1, colors.1);
+            RenderSystem::render_effect(ctx, camera, info, positions.2, colors.2);
+        }
+    }
+
+    fn split_positions(info: &RenderInfo) -> (Vector2<f32>, Vector2<f32>, Vector2<f32>) {
+        match info.render_effect {
+            RenderEffect::SpeedShift(strength) => {
+                let distance = info.position_last - info.position;
+                let middle = distance * strength * 0.5;
+                let last = distance * strength;
+                (info.position + last, info.position + middle, info.position)
+            }
+            _ => (info.position, info.position, info.position),
+        }
+    }
+
+    fn split_colors(
+        color: &ggez::graphics::Color,
+    ) -> (
+        ggez::graphics::Color,
+        ggez::graphics::Color,
+        ggez::graphics::Color,
+    ) {
+        (
+            ggez::graphics::Color::new(color.r, 0.0, 0.0, 1.0),
+            ggez::graphics::Color::new(0.0, color.g, 0.0, 1.0),
+            ggez::graphics::Color::new(0.0, 0.0, color.b, 1.0),
+        )
+    }
+
+    fn update_camera(camera: &mut Camera, info: &RenderInfo) {
+        if info.is_player {
+            camera.set_transform_position(info.position, info.position_last, info.rotation);
+        }
+    }
+
+    fn render_effect(
+        ctx: &mut ggez::Context,
+        camera: &Camera,
+        info: &RenderInfo,
+        pos: Vector2<f32>,
+        color: ggez::graphics::Color,
+    ) {
+        let pos = camera.modify(pos);
+        ggez::graphics::draw(
+            ctx,
+            &info.mesh,
+            (
+                point_to_point(pos),
+                info.rotation,
+                ggez::nalgebra::Point2::new(0.0, 0.0),
+                ggez::nalgebra::Vector2::new(info.scale, info.scale),
+                color,
+            ),
+        )
+        .unwrap();
     }
 }
 
 fn point_to_point(p: Point2<f32>) -> ggez::nalgebra::Point2<f32> {
     ggez::nalgebra::Point2::new(p.x, p.y)
+}
+
+fn sin_split(t: f32, strength: f32) -> Vector2<f32> {
+    Vector2::new(0.0, 0.0)
+}
+
+fn random_vector(strength: f32) -> Vector2<f32> {
+    let mut rng = rand::thread_rng();
+    let x_rng: f32 = rng.gen();
+    let x_rng = (x_rng * strength) - strength / 2.0;
+    let y_rng: f32 = rng.gen();
+    let y_rng = (y_rng * strength) - strength / 2.0;
+    Vector2::new(x_rng, y_rng)
 }

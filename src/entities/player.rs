@@ -12,8 +12,7 @@ use crate::entities::boost::Boost;
 use crate::entities::player_mesh_creator;
 use crate::entities::player_mesh_creator::build_player_collider;
 use crate::entities::world::BoundedByWorld;
-use crate::systems::render_system::RenderInfo;
-use crate::systems::render_system::Renderable;
+use crate::systems::render_system::*;
 use crate::MyGame;
 use crate::PhysicsSystem;
 
@@ -50,13 +49,15 @@ impl Player {
                 &mut game.physic_system.rigid_body_set,
             ));
         }
+        let mut render_info = RenderInfo::new(
+            player_mesh_creator::create_player_mesh(ctx),
+            WHITE,
+            D_ANIMATED,
+        );
+        render_info.render_effect = RenderEffect::SpeedShift(0.4);
         Player {
             state: PlayerState::Sliding,
-            render_info: RenderInfo::new(
-                player_mesh_creator::create_player_mesh(ctx),
-                WHITE,
-                D_ANIMATED,
-            ),
+            render_info,
             boost: Boost::new(ctx, body_handle),
             body_handle,
             collider_handles: collider_handles,
