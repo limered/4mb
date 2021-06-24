@@ -19,6 +19,7 @@ pub trait Renderable {
 pub struct RenderInfo {
     pub is_visible: bool,
     pub is_player: bool,
+    pub velocity: Vector2<f32>,
     mesh: Mesh,
     position: Vector2<f32>,
     position_last: Vector2<f32>,
@@ -39,6 +40,7 @@ impl RenderInfo {
             rotation: 0.0,
             rotation_last: 0.0,
             scale: 1.0,
+            velocity: Vector2::zeros(),
             is_visible: true,
             is_player: false,
             depth,
@@ -83,10 +85,15 @@ impl RenderSystem {
     pub fn render(&mut self, ctx: &mut ggez::Context) {
         // println!("{}",self.renderables.len());
         self.renderables.sort_by(|a, b| b.depth.cmp(&a.depth));
+        self.camera.update();
 
         for info in &self.renderables {
             if info.is_player {
-                self.camera.set_transform_position(info.position);
+                self.camera.set_transform_position(
+                    info.position,
+                    info.position_last,
+                    info.rotation,
+                );
             }
             if info.is_visible {
                 let pos = self.camera.modify(info.position);

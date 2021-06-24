@@ -1,4 +1,3 @@
-use ggez::graphics::Color;
 use ggez::graphics::DrawMode;
 use ggez::graphics::{MeshBuilder, WHITE};
 use ggez::nalgebra::Point2;

@@ -21,9 +21,9 @@ pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
 pub const SPAWN_TIME: f32 = 2.772;
 
 // Depths
-pub const D_FOREGROUND: i8 = -10;
+pub const _D_FOREGROUND: i8 = -10;
 pub const D_ANIMATED: i8 = 0;
 pub const D_EARTH: i8 = 5;
 pub const D_SCANLINE: i8 = 10;
-pub const D_NEBULA: i8 = 20;
-pub const D_STARS: i8 = 30;
+pub const _D_NEBULA: i8 = 20;
+pub const _D_STARS: i8 = 30;
