@@ -33,7 +33,7 @@ pub struct Player {
 impl Player {
     pub fn new(ctx: &mut Context, game: &mut MyGame) -> Self {
         let rb = RigidBodyBuilder::new_dynamic()
-            .translation(na::Vector2::new(300.0, 400.0))
+            .translation(na::Vector2::new(MIDDLE.0, MIDDLE.1 - 300.0))
             .linear_damping(0.5)
             .angular_damping(10.0)
             .can_sleep(false)
@@ -97,9 +97,9 @@ impl Player {
         if keyboard::is_key_pressed(ctx, KeyCode::W) {
             movement = -PLAYER_ACC;
             self.state = PlayerState::Boosting;
-        } else if keyboard::is_key_pressed(ctx, KeyCode::S) {
-            movement = PLAYER_ACC;
-            self.state = PlayerState::Boosting;
+        // } else if keyboard::is_key_pressed(ctx, KeyCode::S) {
+        //     movement = PLAYER_ACC;
+        //     self.state = PlayerState::Boosting;
         } else {
             self.state = PlayerState::Sliding;
         }

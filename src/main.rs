@@ -4,6 +4,7 @@ use crate::systems::world_system::health::Health;
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
+use ggez::input::keyboard::{self, KeyCode};
 
 use crate::entities::player;
 use crate::entities::world::{BoundedByWorld, World};
@@ -43,7 +44,7 @@ pub struct MyGame {
     pub world: World,
     pub render_system: RenderSystem,
     pub health_system: Health,
-    accumulator: f32,
+    pub accumulator: f32,
 }
 
 impl MyGame {
@@ -63,10 +64,26 @@ impl MyGame {
         game.player = Option::Some(player);
         game
     }
+
+    pub fn reset(&mut self, ctx: &mut Context){
+        let render_system = RenderSystem::new();
+        let mut physic_system = PhysicsSystem::new();
+        self.enemy_system = EnemySystem::new(ctx);
+        self.world = World::new(ctx, &mut physic_system);
+        self.physic_system = physic_system;
+        self.render_system = render_system;
+        self.health_system = Health::new(ctx);
+        let player = player::Player::new(ctx, self);
+        self.player = Option::Some(player);
+    }
 }
 
 impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        if keyboard::is_key_pressed(ctx, KeyCode::R){
+            self.reset(ctx);
+        }
+
         let dt = systems::physic_system::DT;
         let mut frame_time = ggez::timer::delta(ctx).as_secs_f32();
         if frame_time > 0.1 {

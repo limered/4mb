@@ -6,7 +6,6 @@ use crate::World;
 use ggez::graphics::BlendMode;
 use ggez::graphics::DrawMode;
 use ggez::graphics::MeshBuilder;
-use ggez::graphics::BLACK;
 use ggez::nalgebra::Point2;
 use ggez::Context;
 use nalgebra::Vector2;

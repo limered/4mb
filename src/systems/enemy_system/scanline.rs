@@ -53,7 +53,7 @@ impl Scanline {
 
         let x = 1.0 - self.spawn_timer / SPAWN_TIME;
         let color_intensity = (1.0 - (x - 1.0).powf(2.0)).sqrt();
-        self.color = Color::new(1.0, color_intensity, color_intensity, 1.0);
+        self.color = Color::new(1.0, color_intensity, color_intensity, 0.6);
 
         self.render_info.update(
             self.position(physics),
