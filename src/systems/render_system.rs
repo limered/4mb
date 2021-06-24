@@ -109,7 +109,7 @@ impl RenderSystem {
     fn render_info(ctx: &mut ggez::Context, camera: &Camera, info: &RenderInfo) {
         if info.is_visible {
             let positions = RenderSystem::split_positions(info);
-            let colors = RenderSystem::split_colors(&info.color);
+            let colors = RenderSystem::split_colors(info);
             RenderSystem::render_effect(ctx, camera, info, positions.0, colors.0);
             RenderSystem::render_effect(ctx, camera, info, positions.1, colors.1);
             RenderSystem::render_effect(ctx, camera, info, positions.2, colors.2);
@@ -129,12 +129,13 @@ impl RenderSystem {
     }
 
     fn split_colors(
-        color: &ggez::graphics::Color,
+        info: &RenderInfo,
     ) -> (
         ggez::graphics::Color,
         ggez::graphics::Color,
         ggez::graphics::Color,
     ) {
+        let color = info.color;
         (
             ggez::graphics::Color::new(color.r, 0.0, 0.0, 1.0),
             ggez::graphics::Color::new(0.0, color.g, 0.0, 1.0),
