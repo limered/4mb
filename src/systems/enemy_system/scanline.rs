@@ -56,8 +56,12 @@ impl Scanline {
         let color_intensity = (1.0 - (x - 1.0).powf(2.0)).sqrt();
         self.color = Color::new(1.0, color_intensity, color_intensity, 1.0);
 
-        self.render_info
-            .update(self.position(physics), self.rotation(physics), self.color());
+        self.render_info.update(
+            self.position(physics),
+            self.rotation(physics),
+            self.color(),
+            dt,
+        );
 
         (spawn, self.direction)
     }

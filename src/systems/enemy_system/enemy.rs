@@ -31,8 +31,8 @@ pub struct Enemy {
     pub size: EnemySize,
     pub life_time: f32,
     pub deletion_reason: DeletionReason,
+    pub render_info: RenderInfo,
     _movement_direction: Vector2<f32>,
-    render_info: RenderInfo,
 }
 
 impl Enemy {
@@ -77,8 +77,12 @@ impl Enemy {
         let direction = direction.normalize();
         body.apply_force(direction * EARTH_GRAVITY, true);
 
-        self.render_info
-            .update(self.position(physics), self.rotation(physics), self.color());
+        self.render_info.update(
+            self.position(physics),
+            self.rotation(physics),
+            self.color(),
+            dt,
+        );
 
         let distance_to_earth = (Vector::new(MIDDLE.0, MIDDLE.1) - position).norm();
         if self.size == EnemySize::Small {

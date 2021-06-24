@@ -54,7 +54,7 @@ impl Player {
             WHITE,
             D_ANIMATED,
         );
-        render_info.render_effect = RenderEffect::SpeedShift(0.4);
+        render_info.render_effect = RenderEffect::SpeedShift(0.6);
         Player {
             state: PlayerState::Sliding,
             render_info,
@@ -67,8 +67,12 @@ impl Player {
     pub fn update(&mut self, ctx: &Context, physics: &mut PhysicsSystem) {
         self.control_movement(ctx, physics);
         self.control_rotation(ctx, physics);
-        self.render_info
-            .update(self.position(physics), self.rotation(physics), self.color());
+        self.render_info.update(
+            self.position(physics),
+            self.rotation(physics),
+            self.color(),
+            0.0,
+        );
         self.render_info.is_player = true;
         self.boost.update(physics);
         self.boost

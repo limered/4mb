@@ -72,8 +72,12 @@ impl World {
             body.apply_force(direction * EXTERIOR_PULL_FORCE, true);
         }
 
-        self.render_info
-            .update(self.position(physics), self.rotation(physics), self.color());
+        self.render_info.update(
+            self.position(physics),
+            self.rotation(physics),
+            self.color(),
+            0.0,
+        );
     }
 }
 
@@ -86,7 +90,7 @@ impl Renderable for World {
         Vector2::new(0.0, 0.0)
     }
     fn color(&self) -> ggez::graphics::Color {
-        ggez::graphics::Color::new(1.0, 1.0, 1.0, 0.1)
+        ggez::graphics::Color::new(0.2, 0.2, 0.3, 1.0)
     }
     fn rotation(&self, _: &PhysicsSystem) -> f32 {
         0.0

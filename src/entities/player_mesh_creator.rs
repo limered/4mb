@@ -18,19 +18,19 @@ pub fn create_player_mesh(ctx: &mut Context) -> Mesh {
 pub fn create_player_boost_mesh(ctx: &mut Context) -> Mesh {
     MeshBuilder::new()
         .line(
-            &[Point2::new(-3.0, 15.0), Point2::new(-6.0, 23.0)],
+            &[Point2::new(-3.0, 20.0), Point2::new(-6.0, 33.0)],
             2.0,
             WHITE,
         )
         .unwrap()
         .line(
-            &[Point2::new(0.0, 15.0), Point2::new(0.0, 24.0)],
+            &[Point2::new(0.0, 20.0), Point2::new(0.0, 33.0)],
             2.0,
             WHITE,
         )
         .unwrap()
         .line(
-            &[Point2::new(3.0, 15.0), Point2::new(6.0, 23.0)],
+            &[Point2::new(3.0, 20.0), Point2::new(6.0, 33.0)],
             2.0,
             WHITE,
         )

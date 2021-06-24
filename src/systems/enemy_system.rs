@@ -7,9 +7,8 @@ use rapier2d::prelude::*;
 
 use crate::constants::*;
 use crate::player::Player;
-use crate::systems::enemy_system::enemy::DeletionReason;
-use crate::systems::enemy_system::enemy::Enemy;
-use crate::systems::enemy_system::enemy::EnemySize;
+use crate::systems::enemy_system::enemy::*;
+use crate::systems::render_system::*;
 use crate::PhysicsSystem;
 use crate::RenderSystem;
 use crate::Renderable;
@@ -59,7 +58,9 @@ impl EnemySystem {
         position: Vector2<f32>,
         size: EnemySize,
     ) {
-        let enemy = Enemy::new(ctx, position, physics, size);
+        let mut enemy = Enemy::new(ctx, position, physics, size);
+        enemy.render_info.render_effect = RenderEffect::HitShift(15.0, 1.0);
+        enemy.render_info.render_effect_t = 0.0;
         self.enemies.push(enemy);
     }
 

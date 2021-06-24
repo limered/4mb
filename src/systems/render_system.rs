@@ -21,6 +21,7 @@ pub trait Renderable {
 pub enum RenderEffect {
     None,
     SpeedShift(f32),
+    HitShift(f32, f32),
 }
 
 #[derive(PartialEq, Clone)]
@@ -29,6 +30,7 @@ pub struct RenderInfo {
     pub is_player: bool,
     pub velocity: Vector2<f32>,
     pub render_effect: RenderEffect,
+    pub render_effect_t: f32,
     mesh: Mesh,
     position: Vector2<f32>,
     position_last: Vector2<f32>,
@@ -54,6 +56,7 @@ impl RenderInfo {
             is_player: false,
             depth,
             render_effect: RenderEffect::None,
+            render_effect_t: 0.0,
         }
     }
 
@@ -61,12 +64,23 @@ impl RenderInfo {
         self.depth = depth;
     }
 
-    pub fn update(&mut self, position: Vector2<f32>, rotation: f32, color: Color) {
+    pub fn update(&mut self, position: Vector2<f32>, rotation: f32, color: Color, dt: f32) {
         self.position_last = self.position;
         self.rotation_last = self.rotation;
         self.position = position;
         self.rotation = rotation;
         self.color = color;
+        if self.render_effect != RenderEffect::None {
+            self.render_effect_t += dt;
+        }
+        match self.render_effect {
+            RenderEffect::HitShift(_, d) => {
+                if self.render_effect_t > d {
+                    self.render_effect = RenderEffect::None;
+                }
+            }
+            _ => {}
+        };
     }
 
     pub fn set_scale(&mut self, scale: f32) {
@@ -121,8 +135,21 @@ impl RenderSystem {
             RenderEffect::SpeedShift(strength) => {
                 let distance = info.position_last - info.position;
                 let middle = distance * strength * 0.5;
-                let last = distance * strength;
-                (info.position + last, info.position + middle, info.position)
+                (
+                    info.position + middle,
+                    info.position,
+                    info.position - middle,
+                )
+            }
+            RenderEffect::HitShift(strength, duration) => {
+                let t = info.render_effect_t / duration;
+                let s = 1.0 - (1.0 - (t - 1.0).powf(2.0)).sqrt();
+                let s = s * strength;
+                (
+                    info.position + random_vector(s),
+                    info.position + random_vector(s),
+                    info.position + random_vector(s),
+                )
             }
             _ => (info.position, info.position, info.position),
         }
