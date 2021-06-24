@@ -6,6 +6,7 @@ use rapier2d::prelude::*;
 
 use crate::constants::*;
 use crate::systems::render_system::RenderInfo;
+use crate::systems::render_system::*;
 use crate::PhysicsSystem;
 use crate::Renderable;
 
@@ -77,12 +78,7 @@ impl Enemy {
         let direction = direction.normalize();
         body.apply_force(direction * EARTH_GRAVITY, true);
 
-        self.render_info.update(
-            self.position(physics),
-            self.rotation(physics),
-            self.color(),
-            dt,
-        );
+        let mut color = self.color();
 
         let distance_to_earth = (Vector::new(MIDDLE.0, MIDDLE.1) - position).norm();
         if self.size == EnemySize::Small {
@@ -93,11 +89,26 @@ impl Enemy {
             }
         }
 
+        if distance_to_earth < ENEMY_BURNUP_DISTANCE {
+            let burn_factor = (distance_to_earth - EARTH_RADIUS) / ENEMY_BURNUP_DISTANCE;
+            color = ggez::graphics::Color::new(
+                color.r,
+                color.g * burn_factor,
+                color.b * burn_factor,
+                color.a,
+            );
+            self.render_info.render_effect = RenderEffect::HitShift((1.0 - burn_factor) * 5.0, 5.0);
+            self.render_info.render_effect_t = 0.0;
+        }
+
         if distance_to_earth > OUTER_SPACE_DISTANCE {
             self.life_time -= dt;
             let scale = self.life_time / ENEMY_MAX_LIFETIME;
             self.render_info.set_scale(scale);
         }
+
+        self.render_info
+            .update(self.position(physics), self.rotation(physics), color, dt);
     }
 }
 

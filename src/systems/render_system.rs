@@ -164,9 +164,9 @@ impl RenderSystem {
     ) {
         let color = info.color;
         (
-            ggez::graphics::Color::new(color.r, 0.0, 0.0, 1.0),
-            ggez::graphics::Color::new(0.0, color.g, 0.0, 1.0),
-            ggez::graphics::Color::new(0.0, 0.0, color.b, 1.0),
+            ggez::graphics::Color::new(color.r, 0.0, 0.0, color.a),
+            ggez::graphics::Color::new(0.0, color.g, 0.0, color.a),
+            ggez::graphics::Color::new(0.0, 0.0, color.b, color.a),
         )
     }
 
