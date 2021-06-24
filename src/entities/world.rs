@@ -6,8 +6,7 @@ use nalgebra::Vector2;
 use rapier2d::prelude::*;
 
 use crate::constants::*;
-use crate::systems::render_system::RenderInfo;
-use crate::systems::render_system::Renderable;
+use crate::systems::render_system::*;
 use crate::PhysicsSystem;
 
 #[derive(PartialEq)]
@@ -24,7 +23,7 @@ impl World {
             .translation(Vector::new(MIDDLE.0, MIDDLE.1))
             .dominance_group(10)
             .build();
-        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS).build();
+        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS - 5.0).build();
         let earth_body_handle = physics.rigid_body_set.insert(earth_body);
         World {
             earth_body_handle,
@@ -53,7 +52,7 @@ impl World {
                         DrawMode::stroke(1.0),
                         Point2::new(MIDDLE.0, MIDDLE.1),
                         EARTH_RADIUS,
-                        2.0,
+                        5.0,
                         WHITE,
                     )
                     .build(ctx)
@@ -64,7 +63,7 @@ impl World {
         }
     }
 
-    pub fn update(&mut self, handle: &RigidBodyHandle, physics: &mut PhysicsSystem) {
+    pub fn update(&mut self, handle: &RigidBodyHandle, physics: &mut PhysicsSystem, dt: f32) {
         let body = physics.rigid_body_set.get_mut(*handle).unwrap();
         let direction = Vector::new(MIDDLE.0, MIDDLE.1) - body.translation();
         if direction.norm() > EXTERIOR_RADIUS {
@@ -72,11 +71,32 @@ impl World {
             body.apply_force(direction * EXTERIOR_PULL_FORCE, true);
         }
 
+        for collider_pair in physics.narrow_phase.contacts_with(self.earth_collider_handle) {
+            let _other_collider = if collider_pair.collider1 == self.earth_collider_handle {
+                collider_pair.collider2
+            } else {
+                collider_pair.collider1
+            };
+            
+            self.earth_render_info.render_effect = RenderEffect::HitShift(10.0, 2.0);
+            self.earth_render_info.render_effect_t = 0.0;
+
+            self.render_info.render_effect = RenderEffect::HitShift(50.0, 2.0);
+            self.render_info.render_effect_t = 0.0;
+        }
+
         self.render_info.update(
             self.position(physics),
             self.rotation(physics),
             self.color(),
-            0.0,
+            dt,
+        );
+
+        self.earth_render_info.update(
+            self.position(physics),
+            self.rotation(physics),
+            WHITE,
+            dt,
         );
     }
 }

@@ -76,7 +76,7 @@ impl EventHandler for MyGame {
             if let Some(player) = &mut self.player {
                 player.update(&ctx, &mut self.physic_system);
                 self.world
-                    .update(player.body_handle(), &mut self.physic_system);
+                    .update(player.body_handle(), &mut self.physic_system, dt);
             }
 
             self.enemy_system.update(dt, ctx, &mut self.physic_system);
