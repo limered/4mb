@@ -22,6 +22,7 @@ pub enum RenderEffect {
     None,
     SpeedShift(f32),
     HitShift(f32, f32),
+    Wobble(f32, f32),
 }
 
 #[derive(PartialEq, Clone)]
@@ -75,6 +76,11 @@ impl RenderInfo {
         }
         match self.render_effect {
             RenderEffect::HitShift(_, d) => {
+                if self.render_effect_t > d {
+                    self.render_effect = RenderEffect::None;
+                }
+            }
+            RenderEffect::Wobble(_, d) => {
                 if self.render_effect_t > d {
                     self.render_effect = RenderEffect::None;
                 }
@@ -149,6 +155,18 @@ impl RenderSystem {
                     info.position + random_vector(s),
                     info.position + random_vector(s),
                     info.position + random_vector(s),
+                )
+            }
+            RenderEffect::Wobble(strength, duration) => {
+                let t = info.render_effect_t / duration;
+                let s = 1.0 - (1.0 - (t - 1.0).powf(2.0)).sqrt();
+                let dir = 360.0 * t;
+                let a = dir.sin() * strength * s;
+                let b = dir.cos() * strength * s;
+                (
+                    info.position + Vector2::new(a, a),
+                    info.position + Vector2::new(b, a),
+                    info.position + Vector2::new(a, b),
                 )
             }
             _ => (info.position, info.position, info.position),

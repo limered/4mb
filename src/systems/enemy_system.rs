@@ -1,3 +1,4 @@
+use crate::World;
 use crate::systems::enemy_system::scanline::Scanline;
 use core::f32::consts::PI;
 use ggez::Context;
@@ -128,7 +129,7 @@ impl EnemySystem {
         }
     }
 
-    pub fn process_enemies_to_remove(&mut self, physics: &mut PhysicsSystem) {
+    pub fn process_enemies_to_remove(&mut self, physics: &mut PhysicsSystem, world: &mut World) {
         for i in (0..self.enemies_to_remove.len()).rev() {
             let item = self.enemies_to_remove[i];
             if item >= self.enemies.len() {
@@ -147,7 +148,22 @@ impl EnemySystem {
                     EnemySize::Small => {}
                 };
             } else if enemy.deletion_reason == DeletionReason::Earth {
-                // Do Stuff for earth collision
+                let enemy_data = match enemy.size {
+                    EnemySize::Small => COLL_SMALL,
+                    EnemySize::Middle => COLL_MIDDLE,
+                    EnemySize::Big => COLL_BIG,
+                };
+                world.add_damage_from_enemy(enemy_data);
+                if enemy.size != EnemySize::Small{
+                    for _i in 0..5 {
+                        let mut rng = rand::thread_rng();
+                        let x:f32 = rng.gen::<f32>() * 30.0 - 15.0;
+                        let y:f32 = rng.gen::<f32>() * 30.0 - 15.0;
+                        let pos = Vector2::new(body.translation().x + x, body.translation().y + y);
+                        self.enemies_to_spawn
+                            .push((pos, EnemySize::Small));
+                    }
+                }
             }
             physics.rigid_body_set.remove(
                 enemy.body_handle,

@@ -50,10 +50,15 @@ impl Enemy {
             .ccd_enabled(false)
             .build();
         let body_handle = physic_system.rigid_body_set.insert(rb);
-
+        let coll_data = match size{
+            EnemySize::Small => COLL_SMALL,
+            EnemySize::Middle => COLL_MIDDLE,
+            EnemySize::Big => COLL_BIG,
+        };
         let collider = ColliderBuilder::convex_hull(&points.to_vec())
             .unwrap()
             .density(0.1)
+            .user_data(coll_data)
             .build();
         let collider_handle = physic_system.collider_set.insert_with_parent(
             collider,

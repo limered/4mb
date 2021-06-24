@@ -15,6 +15,8 @@ pub struct World {
     render_info: RenderInfo,
     earth_render_info: RenderInfo,
     earth_body_handle: RigidBodyHandle,
+    health: i32,
+    damage_cooldown: f32,
 }
 
 impl World {
@@ -23,7 +25,7 @@ impl World {
             .translation(Vector::new(MIDDLE.0, MIDDLE.1))
             .dominance_group(10)
             .build();
-        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS - 5.0).build();
+        let earth_collider = ColliderBuilder::ball(EARTH_RADIUS - 5.0).restitution(1.0).build();
         let earth_body_handle = physics.rigid_body_set.insert(earth_body);
         World {
             earth_body_handle,
@@ -60,6 +62,8 @@ impl World {
                 WHITE,
                 D_EARTH,
             ),
+            health: HEALTH,
+            damage_cooldown: DAMAGE_COOLDOWN,
         }
     }
 
@@ -71,19 +75,7 @@ impl World {
             body.apply_force(direction * EXTERIOR_PULL_FORCE, true);
         }
 
-        for collider_pair in physics.narrow_phase.contacts_with(self.earth_collider_handle) {
-            let _other_collider = if collider_pair.collider1 == self.earth_collider_handle {
-                collider_pair.collider2
-            } else {
-                collider_pair.collider1
-            };
-            
-            self.earth_render_info.render_effect = RenderEffect::HitShift(10.0, 2.0);
-            self.earth_render_info.render_effect_t = 0.0;
-
-            self.render_info.render_effect = RenderEffect::HitShift(50.0, 2.0);
-            self.render_info.render_effect_t = 0.0;
-        }
+        self.damage_cooldown -= dt;
 
         self.render_info.update(
             self.position(physics),
@@ -98,6 +90,31 @@ impl World {
             WHITE,
             dt,
         );
+    }
+
+    pub fn add_damage_from_enemy(&mut self, data: u128){
+        if self.damage_cooldown > 0.0 {
+            return;
+        }
+        let damage = match data {
+            COLL_PLAYER => DAMAGE_SMALL,
+            COLL_PLAYER_HEAVY => DAMAGE_PLAYER,
+            COLL_SMALL => DAMAGE_SMALL,
+            COLL_MIDDLE => DAMAGE_MIDDLE,
+            COLL_BIG => DAMAGE_BIG,
+            _ => DAMAGE_SMALL
+        };
+
+        if damage > 0 {
+            self.damage_cooldown = DAMAGE_COOLDOWN;
+            self.health -= damage;
+
+            self.earth_render_info.render_effect = RenderEffect::HitShift(15.0, 2.0);
+            self.earth_render_info.render_effect_t = 0.0;
+
+            self.render_info.render_effect = RenderEffect::Wobble(30.0, 1.0);
+            self.render_info.render_effect_t = 0.0;
+        }
     }
 }
 

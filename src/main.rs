@@ -94,7 +94,7 @@ impl EventHandler for MyGame {
         }
 
         self.enemy_system
-            .process_enemies_to_remove(&mut self.physic_system);
+            .process_enemies_to_remove(&mut self.physic_system, &mut self.world);
 
         Ok(())
     }

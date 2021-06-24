@@ -17,13 +17,29 @@ pub const ENEMY_MAX_LIFETIME: f32 = 1.0;
 pub const ENEMY_BURNUP_DISTANCE: f32 = EARTH_RADIUS * 1.8;
 pub const OUTER_SPACE_DISTANCE: f32 = 4000.0;
 
-pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
+// pub const SPAWN_RANGE: (f32, f32) = (EXTERIOR_RADIUS, EXTERIOR_RADIUS + 200.0);
+pub const SPAWN_RANGE: (f32, f32) = (EARTH_RADIUS + 30.0, EARTH_RADIUS + 200.0);
 pub const SPAWN_TIME: f32 = 2.772;
 
-// Depths
+// DEPTHS
 pub const _D_FOREGROUND: i8 = -10;
 pub const D_ANIMATED: i8 = 0;
 pub const D_EARTH: i8 = 5;
 pub const D_SCANLINE: i8 = 10;
 pub const _D_NEBULA: i8 = 20;
 pub const _D_STARS: i8 = 30;
+
+// COLLIDER_TYPES
+pub const COLL_PLAYER: u128 = 1;
+pub const COLL_PLAYER_HEAVY: u128 = 2;
+pub const COLL_SMALL: u128 = 30;
+pub const COLL_MIDDLE: u128 = 31;
+pub const COLL_BIG: u128 = 32;
+
+// GAME_VARS
+pub const HEALTH: i32 = 1000;
+pub const DAMAGE_SMALL: i32 = 0;
+pub const DAMAGE_MIDDLE: i32 = 50;
+pub const DAMAGE_BIG: i32 = 100;
+pub const DAMAGE_PLAYER: i32 = 50;
+pub const DAMAGE_COOLDOWN: f32 = 0.5;
