@@ -3,7 +3,6 @@ use crate::systems::render_system::RenderEffect;
 use ggez::graphics::WHITE;
 use ggez::Context;
 use nalgebra::Vector2;
-use rand::Rng;
 use rapier2d::prelude::*;
 
 use crate::entities::player_mesh_creator;
@@ -49,11 +48,6 @@ impl Boost {
 impl Renderable for Boost {
     fn position(&self, physics: &PhysicsSystem) -> Vector2<f32> {
         let body = physics.rigid_body_set.get(self.player_body_handle).unwrap();
-        // let mut rng = rand::thread_rng();
-        // let x_rng: f32 = rng.gen();
-        // let x_rng = (x_rng * 6.0) - 3.0;
-        // let y_rng: f32 = rng.gen();
-        // let y_rng = (y_rng * 6.0) - 3.0;
         Vector2::new(body.translation().x, body.translation().y)
     }
     fn rotation(&self, physics: &PhysicsSystem) -> f32 {

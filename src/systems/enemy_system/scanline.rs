@@ -3,7 +3,6 @@ use ggez::graphics::MeshBuilder;
 use ggez::graphics::WHITE;
 
 use crate::systems::enemy_system::*;
-use crate::systems::render_system::*;
 use crate::PhysicsSystem;
 
 pub struct Scanline {

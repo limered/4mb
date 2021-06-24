@@ -203,7 +203,7 @@ fn point_to_point(p: Point2<f32>) -> ggez::nalgebra::Point2<f32> {
     ggez::nalgebra::Point2::new(p.x, p.y)
 }
 
-fn sin_split(t: f32, strength: f32) -> Vector2<f32> {
+fn _sin_split(_t: f32, _strength: f32) -> Vector2<f32> {
     Vector2::new(0.0, 0.0)
 }
 
