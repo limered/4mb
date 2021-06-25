@@ -90,9 +90,9 @@ impl World {
             .update(self.position(physics), self.rotation(physics), WHITE, dt);
     }
 
-    pub fn add_damage_from_enemy(&mut self, data: u128) {
+    pub fn add_damage_from_enemy(&mut self, data: u128) -> (bool, RigidBodyHandle){
         if self.damage_cooldown > 0.0 {
-            return;
+            return (false, self.earth_body_handle);
         }
         let damage = match data {
             COLL_PLAYER => DAMAGE_SMALL,
@@ -112,7 +112,13 @@ impl World {
 
             self.render_info.render_effect = RenderEffect::Wobble(30.0, 1.0);
             self.render_info.render_effect_t = 0.0;
+        };
+
+        if self.health <= 0 {
+            self.earth_render_info.is_visible = false;
         }
+
+        (self.health <= 0, self.earth_body_handle)
     }
 }
 

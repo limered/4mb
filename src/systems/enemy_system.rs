@@ -153,7 +153,7 @@ impl EnemySystem {
                     EnemySize::Middle => COLL_MIDDLE,
                     EnemySize::Big => COLL_BIG,
                 };
-                world.add_damage_from_enemy(enemy_data);
+                let (earth_destoyed, earth_handle) = world.add_damage_from_enemy(enemy_data);
                 if enemy.size != EnemySize::Small {
                     for _i in 0..5 {
                         let mut rng = rand::thread_rng();
@@ -162,6 +162,22 @@ impl EnemySystem {
                         let pos = Vector2::new(body.translation().x + x, body.translation().y + y);
                         self.enemies_to_spawn.push((pos, EnemySize::Small));
                     }
+                }
+                if earth_destoyed {
+                    for _i in 0..5 {
+                        let mut rng = rand::thread_rng();
+                        let x: f32 = rng.gen::<f32>() * 200.0 - 100.0;
+                        let y: f32 = rng.gen::<f32>() * 200.0 - 100.0;
+                        let pos = Vector2::new(MIDDLE.0 + x, MIDDLE.1 + y);
+                        self.enemies_to_spawn.push((pos, EnemySize::Big));
+                    }
+
+                    physics.rigid_body_set.remove(
+                        earth_handle,
+                        &mut physics.island_manager,
+                        &mut physics.collider_set,
+                        &mut physics.joint_set,
+                    );
                 }
             }
             physics.rigid_body_set.remove(
