@@ -1,3 +1,5 @@
+use ggez::graphics::Drawable;
+use crate::constants::MIDDLE;
 use crate::systems::render_system::RenderSystem;
 use crate::systems::render_system::Renderable;
 use crate::systems::world_system::health::Health;
@@ -5,6 +7,7 @@ use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 use ggez::input::keyboard::{self, KeyCode};
+use ggez::graphics::BlendMode;
 
 use crate::entities::player;
 use crate::entities::world::{BoundedByWorld, World};
@@ -45,6 +48,7 @@ pub struct MyGame {
     pub render_system: RenderSystem,
     pub health_system: Health,
     pub accumulator: f32,
+    pub timer: f32,
 }
 
 impl MyGame {
@@ -59,6 +63,7 @@ impl MyGame {
             render_system,
             accumulator: 0.0,
             health_system: Health::new(ctx),
+            timer: 0.0,
         };
         let player = player::Player::new(ctx, &mut game);
         game.player = Option::Some(player);
@@ -73,6 +78,7 @@ impl MyGame {
         self.physic_system = physic_system;
         self.render_system = render_system;
         self.health_system = Health::new(ctx);
+        self.timer = 0.0;
         let player = player::Player::new(ctx, self);
         self.player = Option::Some(player);
     }
@@ -86,8 +92,9 @@ impl EventHandler for MyGame {
 
         let dt = systems::physic_system::DT;
         let mut frame_time = ggez::timer::delta(ctx).as_secs_f32();
-        if frame_time > 0.1 {
-            frame_time = 0.1;
+        self.timer += frame_time;
+        if frame_time > 0.15 {
+            frame_time = 0.15;
         }
 
         self.accumulator += frame_time;
@@ -136,6 +143,7 @@ impl EventHandler for MyGame {
             .add_to_render_system(&mut self.render_system);
 
         self.render_system.render(ctx);
+
         ggez::timer::sleep(std::time::Duration::from_secs(0));
         graphics::present(ctx)
     }

@@ -36,7 +36,7 @@ pub const COLL_MIDDLE: u128 = 31;
 pub const COLL_BIG: u128 = 32;
 
 // GAME_VARS
-pub const HEALTH: i32 = -10;
+pub const HEALTH: i32 = 2000;
 pub const DAMAGE_SMALL: i32 = 0;
 pub const DAMAGE_MIDDLE: i32 = 50;
 pub const DAMAGE_BIG: i32 = 100;
