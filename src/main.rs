@@ -31,6 +31,8 @@ async fn main() {
     let mut current_time = std::time::Instant::now();
     let mut accumulator:f32 = 0.0;
     loop {
+        game_world.process_inputs();
+
         let new_time = std::time::Instant::now();
         let mut frame_time = (new_time.sub(current_time).as_nanos() / 1000000000) as f32;
         if frame_time > MAX_FRAME_TIME {
@@ -50,6 +52,7 @@ async fn main() {
         
         game_world.interpolate(alpha);
         game_world.render();
+        
         next_frame().await
     }
 }
