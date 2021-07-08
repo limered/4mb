@@ -90,7 +90,7 @@ impl World {
             .update(self.position(physics), self.rotation(physics), WHITE, dt);
     }
 
-    pub fn add_damage_from_enemy(&mut self, data: u128) -> (bool, RigidBodyHandle){
+    pub fn add_damage_from_enemy(&mut self, data: u128) -> (bool, RigidBodyHandle) {
         if self.damage_cooldown > 0.0 {
             return (false, self.earth_body_handle);
         }

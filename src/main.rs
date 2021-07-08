@@ -1,19 +1,18 @@
-use crate::world::GameWorld;
-use std::ops::Sub;
 use crate::systems::render_system::RenderSystem;
 use crate::systems::render_system::Renderable;
 use crate::systems::world_system::health::Health;
+use crate::world::GameWorld;
 use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
-use ggez::{graphics, Context, ContextBuilder, GameResult};
 use ggez::input::keyboard::{self, KeyCode};
+use ggez::{graphics, Context, ContextBuilder, GameResult};
+use std::ops::Sub;
 
 use crate::entities::player;
 use crate::entities::world::{BoundedByWorld, World};
 use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
 use macroquad::prelude::*;
-
 
 mod constants;
 mod entities;
@@ -25,11 +24,11 @@ const MAX_FRAME_TIME: f32 = 0.25;
 
 #[macroquad::main("Trashinator")]
 async fn main() {
-    let mut game_world:GameWorld = GameWorld::new();
+    let mut game_world: GameWorld = GameWorld::new();
 
     let mut t = 0.0;
     let mut current_time = std::time::Instant::now();
-    let mut accumulator:f32 = 0.0;
+    let mut accumulator: f32 = 0.0;
     loop {
         game_world.process_inputs();
 
@@ -39,20 +38,20 @@ async fn main() {
             frame_time = MAX_FRAME_TIME;
         }
         current_time = new_time;
-    
+
         accumulator += frame_time;
-    
+
         while accumulator >= DT {
             game_world.update(t, DT);
             accumulator -= DT;
             t += DT;
         }
-    
+
         let alpha = accumulator / DT;
-        
+
         game_world.interpolate(alpha);
         game_world.render();
-        
+
         next_frame().await
     }
 }
@@ -109,7 +108,7 @@ impl MyGame {
         game
     }
 
-    pub fn reset(&mut self, ctx: &mut Context){
+    pub fn reset(&mut self, ctx: &mut Context) {
         let render_system = RenderSystem::new();
         let mut physic_system = PhysicsSystem::new();
         self.enemy_system = EnemySystem::new(ctx);
@@ -125,7 +124,7 @@ impl MyGame {
 
 impl EventHandler for MyGame {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        if keyboard::is_key_pressed(ctx, KeyCode::R){
+        if keyboard::is_key_pressed(ctx, KeyCode::R) {
             self.reset(ctx);
         }
 
@@ -145,7 +144,8 @@ impl EventHandler for MyGame {
                     .update(player.body_handle(), &mut self.physic_system, old_dt);
             }
 
-            self.enemy_system.update(old_dt, ctx, &mut self.physic_system);
+            self.enemy_system
+                .update(old_dt, ctx, &mut self.physic_system);
 
             self.physic_system.update();
             self.accumulator -= old_dt;

@@ -1,4 +1,3 @@
-use ggez::graphics::Rect;
 use crate::constants::*;
 use crate::systems::render_system::*;
 use crate::PhysicsSystem;
@@ -6,6 +5,7 @@ use crate::World;
 use ggez::graphics::BlendMode;
 use ggez::graphics::DrawMode;
 use ggez::graphics::MeshBuilder;
+use ggez::graphics::Rect;
 use ggez::nalgebra::Point2;
 use ggez::Context;
 use nalgebra::Vector2;
@@ -28,7 +28,7 @@ impl Health {
                 )
                 .build(ctx)
                 .expect("Earth Died"),
-                circle_color,
+            circle_color,
             _D_NEBULA,
         );
         circle_render_info.blend_mode = BlendMode::Alpha;
@@ -43,8 +43,8 @@ impl Health {
                 )
                 .build(ctx)
                 .expect("Earth Died"),
-                quad_color,
-            _D_NEBULA+1,
+            quad_color,
+            _D_NEBULA + 1,
         );
         quad_render_info.blend_mode = BlendMode::Add;
         Health {
@@ -56,19 +56,11 @@ impl Health {
     pub fn update(&mut self, world: &World) {
         let current_health = world.health as f32 / HEALTH as f32;
         let pos_y = MIDDLE.1 - 200.0 * (1.0 - current_health);
-        self.quad_render_info.update(
-            Vector2::new(MIDDLE.0, MIDDLE.1),
-            0.0,
-            self.color(),
-            0.0,
-        );
+        self.quad_render_info
+            .update(Vector2::new(MIDDLE.0, MIDDLE.1), 0.0, self.color(), 0.0);
 
-        self.circle_render_info.update(
-            Vector2::new(MIDDLE.0, pos_y),
-            0.0,
-            self.color(),
-            0.0,
-        );
+        self.circle_render_info
+            .update(Vector2::new(MIDDLE.0, pos_y), 0.0, self.color(), 0.0);
     }
 }
 
