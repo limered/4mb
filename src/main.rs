@@ -1,5 +1,5 @@
-use ggez::graphics::Drawable;
-use crate::constants::MIDDLE;
+use crate::world::GameWorld;
+use std::ops::Sub;
 use crate::systems::render_system::RenderSystem;
 use crate::systems::render_system::Renderable;
 use crate::systems::world_system::health::Health;
@@ -7,38 +7,74 @@ use ggez::conf::{NumSamples, WindowSetup};
 use ggez::event::{self, EventHandler};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 use ggez::input::keyboard::{self, KeyCode};
-use ggez::graphics::BlendMode;
 
 use crate::entities::player;
 use crate::entities::world::{BoundedByWorld, World};
 use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
+use macroquad::prelude::*;
+
 
 mod constants;
 mod entities;
 mod systems;
+mod world;
 
-fn main() {
-    let window_setup = WindowSetup {
-        title: "Trashinator".to_owned(),
-        samples: NumSamples::Zero,
-        vsync: true,
-        icon: "".to_owned(),
-        srgb: true,
-    };
+const DT: f32 = 0.02;
+const MAX_FRAME_TIME: f32 = 0.25;
 
-    let (mut ctx, mut event_loop) = ContextBuilder::new("trashinator", "Emil Wasilewski")
-        .window_setup(window_setup)
-        .build()
-        .expect("aieee, could not create ggez context!");
+#[macroquad::main("Trashinator")]
+async fn main() {
+    let mut game_world:GameWorld = GameWorld::new();
 
-    let mut my_game = MyGame::new(&mut ctx);
-
-    match event::run(&mut ctx, &mut event_loop, &mut my_game) {
-        Ok(_) => println!("Exited cleanly."),
-        Err(e) => println!("Error occurred: {}", e),
+    let mut t = 0.0;
+    let mut current_time = std::time::Instant::now();
+    let mut accumulator:f32 = 0.0;
+    loop {
+        let new_time = std::time::Instant::now();
+        let mut frame_time = (new_time.sub(current_time).as_nanos() / 1000000000) as f32;
+        if frame_time > MAX_FRAME_TIME {
+            frame_time = MAX_FRAME_TIME;
+        }
+        current_time = new_time;
+    
+        accumulator += frame_time;
+    
+        while accumulator >= DT {
+            game_world.update(t, DT);
+            accumulator -= DT;
+            t += DT;
+        }
+    
+        let alpha = accumulator / DT;
+        
+        game_world.interpolate(alpha);
+        game_world.render();
+        next_frame().await
     }
 }
+
+// fn main() {
+//     let window_setup = WindowSetup {
+//         title: "Trashinator".to_owned(),
+//         samples: NumSamples::Zero,
+//         vsync: true,
+//         icon: "".to_owned(),
+//         srgb: true,
+//     };
+
+//     let (mut ctx, mut event_loop) = ContextBuilder::new("trashinator", "Emil Wasilewski")
+//         .window_setup(window_setup)
+//         .build()
+//         .expect("aieee, could not create ggez context!");
+
+//     let mut my_game = MyGame::new(&mut ctx);
+
+//     match event::run(&mut ctx, &mut event_loop, &mut my_game) {
+//         Ok(_) => println!("Exited cleanly."),
+//         Err(e) => println!("Error occurred: {}", e),
+//     }
+// }
 
 pub struct MyGame {
     pub player: Option<player::Player>,
@@ -90,7 +126,7 @@ impl EventHandler for MyGame {
             self.reset(ctx);
         }
 
-        let dt = systems::physic_system::DT;
+        let old_dt = systems::physic_system::DT;
         let mut frame_time = ggez::timer::delta(ctx).as_secs_f32();
         self.timer += frame_time;
         if frame_time > 0.15 {
@@ -99,17 +135,17 @@ impl EventHandler for MyGame {
 
         self.accumulator += frame_time;
 
-        while self.accumulator >= dt {
+        while self.accumulator >= old_dt {
             if let Some(player) = &mut self.player {
                 player.update(&ctx, &mut self.physic_system);
                 self.world
-                    .update(player.body_handle(), &mut self.physic_system, dt);
+                    .update(player.body_handle(), &mut self.physic_system, old_dt);
             }
 
-            self.enemy_system.update(dt, ctx, &mut self.physic_system);
+            self.enemy_system.update(old_dt, ctx, &mut self.physic_system);
 
             self.physic_system.update();
-            self.accumulator -= dt;
+            self.accumulator -= old_dt;
 
             if let Some(player) = &self.player {
                 self.enemy_system.process_collisions(
