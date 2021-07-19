@@ -1,17 +1,16 @@
-use crate::systems::render_system::RenderSystem;
-use crate::systems::render_system::Renderable;
-use crate::systems::world_system::health::Health;
-use crate::world::GameWorld;
-use ggez::conf::{NumSamples, WindowSetup};
-use ggez::event::{self, EventHandler};
+use ggez::event::EventHandler;
 use ggez::input::keyboard::{self, KeyCode};
-use ggez::{graphics, Context, ContextBuilder, GameResult};
+use ggez::{graphics, Context, GameResult};
 use std::ops::Sub;
 
 use crate::entities::player;
 use crate::entities::world::{BoundedByWorld, World};
 use crate::systems::enemy_system::EnemySystem;
 use crate::systems::physic_system::PhysicsSystem;
+use crate::systems::render_system::RenderSystem;
+use crate::systems::render_system::Renderable;
+use crate::systems::world_system::health::Health;
+use crate::world::GameWorld;
 use macroquad::prelude::*;
 
 mod constants;
@@ -19,7 +18,7 @@ mod entities;
 mod systems;
 mod world;
 
-const DT: f32 = 0.02;
+pub const DT: f32 = 0.02;
 const MAX_FRAME_TIME: f32 = 0.25;
 
 #[macroquad::main("Trashinator")]
@@ -33,7 +32,7 @@ async fn main() {
         game_world.process_inputs();
 
         let new_time = std::time::Instant::now();
-        let mut frame_time = (new_time.sub(current_time).as_nanos() / 1000000000) as f32;
+        let mut frame_time = new_time.sub(current_time).as_nanos() as f32 / 1000000000.0;
         if frame_time > MAX_FRAME_TIME {
             frame_time = MAX_FRAME_TIME;
         }
@@ -41,8 +40,10 @@ async fn main() {
 
         accumulator += frame_time;
 
+        game_world.update(t, frame_time);
+
         while accumulator >= DT {
-            game_world.update(t, DT);
+            game_world.fixed_update(t, DT);
             accumulator -= DT;
             t += DT;
         }
@@ -55,28 +56,6 @@ async fn main() {
         next_frame().await
     }
 }
-
-// fn main() {
-//     let window_setup = WindowSetup {
-//         title: "Trashinator".to_owned(),
-//         samples: NumSamples::Zero,
-//         vsync: true,
-//         icon: "".to_owned(),
-//         srgb: true,
-//     };
-
-//     let (mut ctx, mut event_loop) = ContextBuilder::new("trashinator", "Emil Wasilewski")
-//         .window_setup(window_setup)
-//         .build()
-//         .expect("aieee, could not create ggez context!");
-
-//     let mut my_game = MyGame::new(&mut ctx);
-
-//     match event::run(&mut ctx, &mut event_loop, &mut my_game) {
-//         Ok(_) => println!("Exited cleanly."),
-//         Err(e) => println!("Error occurred: {}", e),
-//     }
-// }
 
 pub struct MyGame {
     pub player: Option<player::Player>,
@@ -128,7 +107,7 @@ impl EventHandler for MyGame {
             self.reset(ctx);
         }
 
-        let old_dt = systems::physic_system::DT;
+        let old_dt = DT;
         let mut frame_time = ggez::timer::delta(ctx).as_secs_f32();
         self.timer += frame_time;
         if frame_time > 0.15 {

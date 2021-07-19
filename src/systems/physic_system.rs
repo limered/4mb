@@ -1,7 +1,6 @@
+use crate::DT;
 use nalgebra::Vector2;
 use rapier2d::prelude::*;
-
-pub const DT: f32 = 1.0 / 60.0;
 
 pub struct PhysicsSystem {
     pub rigid_body_set: RigidBodySet,

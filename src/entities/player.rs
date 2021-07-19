@@ -1,3 +1,5 @@
+use crate::systems::player_system::player_mesh_creator;
+use crate::systems::player_system::player_mesh_creator::build_player_collider;
 use ggez::graphics::WHITE;
 use nalgebra::Vector2;
 use rapier2d::dynamics::RigidBodyHandle;
@@ -9,8 +11,6 @@ use nalgebra as na;
 
 use crate::constants::*;
 use crate::entities::boost::Boost;
-use crate::entities::player_mesh_creator;
-use crate::entities::player_mesh_creator::build_player_collider;
 use crate::entities::world::BoundedByWorld;
 use crate::systems::render_system::*;
 use crate::MyGame;

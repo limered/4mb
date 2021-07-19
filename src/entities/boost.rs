@@ -1,11 +1,11 @@
 use crate::constants::D_ANIMATED;
+use crate::systems::player_system::player_mesh_creator;
 use crate::systems::render_system::RenderEffect;
 use ggez::graphics::WHITE;
 use ggez::Context;
 use nalgebra::Vector2;
 use rapier2d::prelude::*;
 
-use crate::entities::player_mesh_creator;
 use crate::systems::render_system::{RenderInfo, Renderable};
 use crate::PhysicsSystem;
 
