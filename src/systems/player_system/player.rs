@@ -25,10 +25,10 @@ impl Player {
 
     pub fn boost(&mut self, value: f32) {
         self.lin_acc = value;
-        if value == 0.0 {
-            self.state = PlayerState::Sliding;
+        if value < 0.0 {
+          self.state = PlayerState::Boosting;
         } else {
-            self.state = PlayerState::Boosting;
+          self.state = PlayerState::Sliding;
         }
     }
 }
