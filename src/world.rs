@@ -1,13 +1,22 @@
+use crate::systems::player_system::PlayerSystem;
 use macroquad::prelude::*;
 
-pub struct GameWorld {}
+pub struct GameWorld {
+    player_system: PlayerSystem,
+}
 
 impl GameWorld {
     pub fn new() -> Self {
-        GameWorld {}
+        GameWorld {
+            player_system: PlayerSystem::new(),
+        }
     }
-    pub fn process_inputs(&mut self) {}
-    pub fn update(&mut self, _game_time: f32, _dt: f32) {}
+    pub fn process_inputs(&mut self) {
+        self.player_system.process_inputs();
+    }
+    pub fn update(&mut self, game_time: f32, dt: f32) {
+        self.player_system.update(game_time, dt);
+    }
     pub fn interpolate(&mut self, _alpha: f32) {
         // let state: State = curr * alpha + prev * (1.0 - alpha);
     }
